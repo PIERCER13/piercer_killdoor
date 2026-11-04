@@ -3,16 +3,13 @@ local QBCore = nil
 local ESX = nil
 local detectedFramework = "Standalone (ACE)"
 
--- Inicialização silenciosa e segura (pcall) de qualquer framework presente no servidor
 CreateThread(function()
     Wait(500)
 
-    -- 1. Tenta detectar QBox (qbx_core)
     if GetResourceState('qbx_core') == 'started' then
         detectedFramework = "QBox (qbx_core)"
     end
 
-    -- 2. Tenta detectar QBCore (qb-core)
     if GetResourceState('qb-core') == 'started' then
         local ok, obj = pcall(function()
             return exports['qb-core']:GetCoreObject()
@@ -25,7 +22,6 @@ CreateThread(function()
         end
     end
 
-    -- 3. Tenta detectar ESX (es_extended)
     if GetResourceState('es_extended') == 'started' then
         local ok, obj = pcall(function()
             return exports['es_extended']:getSharedObject()
@@ -38,7 +34,6 @@ CreateThread(function()
         end
     end
 
-    -- 4. Tenta detectar vRP / vRPex / Creative / TNet
     if GetResourceState('vrp') == 'started' then
         local ok, err = pcall(function()
             local utils = LoadResourceFile('vrp', 'lib/utils.lua')
