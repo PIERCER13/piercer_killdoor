@@ -712,10 +712,6 @@ function generateAndSaveReport() {
     }
 }
 
-// ============================================================================
-// VERIFICAÇÃO DE PERMISSÃO
-// ============================================================================
-
 function checkPermission(source) {
     if (!source || source === 0) return true;
     try {
@@ -730,10 +726,6 @@ function checkPermission(source) {
         return IsPlayerAceAllowed(String(source), 'command');
     }
 }
-
-// ============================================================================
-// COMANDOS DE CONSOLE / TXADMIN E IN-GAME
-// ============================================================================
 
 RegisterCommand(Config.ConsoleCommand, (source, args) => {
     if (!checkPermission(source)) {
@@ -814,10 +806,6 @@ RegisterCommand(Config.ConsoleCommand, (source, args) => {
         }
     }
 }, false);
-
-// ============================================================================
-// EVENTOS DE REDE (COMUNICAÇÃO COM O PAINEL NUI IN-GAME)
-// ============================================================================
 
 onNet('piercer_killdoor:requestOpen', () => {
     const src = global.source;
