@@ -529,7 +529,6 @@ svg {
     color: #050507;
 }
 
-/* THREAT CARDS */
 .threat-path-box {
     font-family: Consolas, monospace;
     font-size: 12px;
@@ -564,7 +563,6 @@ svg {
     font-weight: 700;
 }
 
-/* RULES BANNER IN LOG TAB */
 .rules-banner {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
