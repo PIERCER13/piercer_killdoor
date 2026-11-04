@@ -18,7 +18,6 @@ const Config = global.KillDoorConfig || require('../config.js');
 const CompiledXorRegexes = Config.Detection.XorPatterns.map(p => new RegExp(p, 's'));
 const ManifestInjectRegex = new RegExp(Config.Detection.ManifestInjectPattern);
 
-// Clientes com o painel aberto para receber streaming em tempo real
 const activeUiClients = new Set();
 
 let lastScanState = {
@@ -94,7 +93,6 @@ function appendScanLog(text, level = 'info') {
     };
     logConsole(text, colorMap[level] || '^7');
 
-    // Envia a linha de log IMEDIATAMENTE em tempo real para o painel NUI
     broadcastToUi('piercer_killdoor:liveLog', entry);
 }
 
@@ -107,10 +105,6 @@ function broadcastProgress(pct, currentFile = '') {
         stats: lastScanState.stats
     });
 }
-
-// ============================================================================
-// SISTEMA DE QUARENTENA E RESTAURAÇÃO
-// ============================================================================
 
 function loadQuarantineIndex() {
     if (!fs.existsSync(QUARANTINE_INDEX)) return [];
@@ -191,10 +185,6 @@ function restoreFromQuarantine(quarantineId) {
     }
 }
 
-// ============================================================================
-// ANÁLISE DE CONTEXTO DE RESOURCE
-// ============================================================================
-
 function inspectResourceContext(resourceDir) {
     const context = {
         resourceName: path.basename(resourceDir),
@@ -237,10 +227,6 @@ function inspectResourceContext(resourceDir) {
     return context;
 }
 
-// ============================================================================
-// LIMPEZA DE AMEAÇAS (100% FS NATIVO - SEM CHILD_PROCESS)
-// ============================================================================
-
 function cleanThreatItem(threat) {
     if (threat.cleaned) return true;
 
@@ -252,7 +238,6 @@ function cleanThreatItem(threat) {
 
         if (threat.type === 'malicious_js') {
             if (fs.existsSync(threat.filePath)) {
-                // Libera permissão de escrita via fs nativo antes de remover
                 try { fs.chmodSync(threat.filePath, 0o666); } catch (e) {}
                 fs.unlinkSync(threat.filePath);
             }
@@ -274,10 +259,6 @@ function cleanThreatItem(threat) {
     }
     return false;
 }
-
-// ============================================================================
-// VARREDURA ASSÍNCRONA EM TEMPO REAL
-// ============================================================================
 
 async function runScan(customRootDir = null, mode = 'report') {
     if (lastScanState.scanning) {
@@ -386,9 +367,6 @@ async function runScan(customRootDir = null, mode = 'report') {
 
         let threatCounter = 1;
 
-        // --------------------------------------------------------------------
-        // ETAPA 2: VARREDURA DE MANIFESTS (fxmanifest.lua / __resource.lua)
-        // --------------------------------------------------------------------
         appendScanLog(`[ETAPA 2/3] Verificando ${manifestFiles.length} arquivo(s) fxmanifest.lua / __resource.lua...`, 'muted');
         for (let mIdx = 0; mIdx < manifestFiles.length; mIdx++) {
             const item = manifestFiles[mIdx];
@@ -448,9 +426,6 @@ async function runScan(customRootDir = null, mode = 'report') {
             } catch (e) {}
         }
 
-        // --------------------------------------------------------------------
-        // ETAPA 3: VARREDURA DE ARQUIVOS JAVASCRIPT (*.js)
-        // --------------------------------------------------------------------
         appendScanLog(`[ETAPA 3/3] Inspecionando ${jsFiles.length} arquivo(s) JavaScript (.js)...`, 'muted');
         for (let jIdx = 0; jIdx < jsFiles.length; jIdx++) {
             const item = jsFiles[jIdx];
@@ -482,7 +457,6 @@ async function runScan(customRootDir = null, mode = 'report') {
             const isSafeDotFile = Config.Detection.SafeDotFiles.some(s => lowerFileName === s.toLowerCase());
             const startsWithDot = fileName.startsWith('.') && !isSafeDotFile;
 
-            // Detecta arquivos ou pastas ocultas (iniciadas com ponto ou somente-leitura camufladas)
             const hasHiddenSegment = parts.some(seg => seg.startsWith('.') && seg !== '.' && seg !== '..' && !isSafeDotFile);
             let isReadOnlyHidden = false;
             try {
@@ -669,10 +643,6 @@ function getPublicScanState() {
         quarantine: loadQuarantineIndex()
     };
 }
-
-// ============================================================================
-// GERAÇÃO DE RELATÓRIO EM TEXTO (.TXT)
-// ============================================================================
 
 function generateAndSaveReport() {
     recalculateStats();
