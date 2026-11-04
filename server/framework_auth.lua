@@ -51,7 +51,6 @@ CreateThread(function()
     end
 end)
 
--- Função exportada para o motor Node.js (scanner.js) verificar se o jogador tem permissão
 exports('GetDetectedFramework', function()
     return detectedFramework
 end)
@@ -59,10 +58,9 @@ end)
 exports('IsPlayerAdmin', function(source, acePerms, adminIds, vrpPerms, fwGroups)
     local src = tonumber(source)
     if not src or src == 0 then
-        return true -- Console / txAdmin tem acesso total
+        return true 
     end
 
-    -- 1. Verifica Permissões ACE Nativas do FiveM (Standalone)
     if type(acePerms) == 'table' then
         for _, ace in ipairs(acePerms) do
             if IsPlayerAceAllowed(src, tostring(ace)) then
@@ -71,7 +69,6 @@ exports('IsPlayerAdmin', function(source, acePerms, adminIds, vrpPerms, fwGroups
         end
     end
 
-    -- 2. Verifica Lista de Identificadores Diretos (license, discord, steam, fivem)
     if type(adminIds) == 'table' and #adminIds > 0 then
         local playerIds = GetPlayerIdentifiers(src)
         for _, pId in ipairs(playerIds) do
@@ -83,7 +80,6 @@ exports('IsPlayerAdmin', function(source, acePerms, adminIds, vrpPerms, fwGroups
         end
     end
 
-    -- 3. Verifica QBox (qbx_core)
     if GetResourceState('qbx_core') == 'started' and type(fwGroups) == 'table' then
         for _, grp in ipairs(fwGroups) do
             local ok, res = pcall(function()
@@ -95,7 +91,6 @@ exports('IsPlayerAdmin', function(source, acePerms, adminIds, vrpPerms, fwGroups
         end
     end
 
-    -- 4. Verifica QBCore (qb-core)
     if QBCore and QBCore.Functions and QBCore.Functions.HasPermission and type(fwGroups) == 'table' then
         for _, grp in ipairs(fwGroups) do
             local ok, res = pcall(function()
@@ -107,7 +102,6 @@ exports('IsPlayerAdmin', function(source, acePerms, adminIds, vrpPerms, fwGroups
         end
     end
 
-    -- 5. Verifica ESX (es_extended)
     if ESX and ESX.GetPlayerFromId and type(fwGroups) == 'table' then
         local ok, xPlayer = pcall(function()
             return ESX.GetPlayerFromId(src)
