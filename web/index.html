@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Piercer KillDoor</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="app" class="hidden">
+        <div class="hud-window">
+            <!-- TOP HEADER -->
+            <header class="hud-header">
+                <div class="header-titles">
+                    <div class="title-row">
+                        <h1>PIERCER KILLDOOR</h1>
+                        <span class="engine-pill" data-i18n="engine_badge">ENGINE v1.0 • STANDALONE</span>
+                    </div>
+                    <p id="lblSubtitle" data-i18n="subtitle">Scanner Estático de Backdoors XOR, Arquivos Ocultos (Hidden) e Injeções em fxmanifest.lua</p>
+                </div>
+                <div class="header-actions">
+                    <!-- LANGUAGE SWITCHER WITH SVG FLAGS (BRAZIL / USA) -->
+                    <div class="lang-switch" title="Idioma / Language">
+                        <button id="btnLangPT" class="lang-opt active" onclick="setLanguage('pt-BR')">
+                            <svg class="flag-svg" viewBox="0 0 28 20" fill="none">
+                                <rect width="28" height="20" rx="3" fill="#009B3A"/>
+                                <path d="M14 2.5L25.5 10L14 17.5L2.5 10L14 2.5Z" fill="#FEDF00"/>
+                                <circle cx="14" cy="10" r="4.3" fill="#002776"/>
+                                <path d="M10.2 8.8C12.5 8.1 15.6 8.5 17.9 9.8" stroke="#FFFFFF" stroke-width="1.1" stroke-linecap="round"/>
+                            </svg>
+                            <span>PT-BR</span>
+                        </button>
+                        <button id="btnLangEN" class="lang-opt" onclick="setLanguage('en-US')">
+                            <svg class="flag-svg" viewBox="0 0 28 20" fill="none">
+                                <rect width="28" height="20" rx="3" fill="#FFFFFF"/>
+                                <path d="M0 0H28V2.85H0V0ZM0 5.7H28V8.55H0V5.7ZM0 11.4H28V14.25H0V11.4ZM0 17.1H28V20H0V17.1Z" fill="#B22234"/>
+                                <rect width="12.5" height="11.4" rx="1.5" fill="#3C3B6E"/>
+                                <circle cx="3" cy="3" r="0.8" fill="#FFF"/><circle cx="6.2" cy="3" r="0.8" fill="#FFF"/><circle cx="9.4" cy="3" r="0.8" fill="#FFF"/>
+                                <circle cx="4.6" cy="5.7" r="0.8" fill="#FFF"/><circle cx="7.8" cy="5.7" r="0.8" fill="#FFF"/>
+                                <circle cx="3" cy="8.4" r="0.8" fill="#FFF"/><circle cx="6.2" cy="8.4" r="0.8" fill="#FFF"/><circle cx="9.4" cy="8.4" r="0.8" fill="#FFF"/>
+                            </svg>
+                            <span>EN-US</span>
+                        </button>
+                    </div>
+
+                    <button id="btnSaveReport" class="tactile-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <span data-i18n="btn_save_txt">EXPORTAR .TXT</span>
+                    </button>
+                    <button id="btnRescan" class="tactile-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                        <span data-i18n="btn_rescan">REESCANEAR</span>
+                    </button>
+                    <button id="btnClose" class="tactile-close" title="ESC">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- HORIZONTAL SEGMENTED TABS -->
+            <nav class="hud-tabs">
+                <button class="hud-tab active" data-tab="modes" data-i18n="tab_modes">CENTRAL DE OPERAÇÕES</button>
+                <button class="hud-tab" data-tab="critical"><span data-i18n="tab_critical">BACKDOORS 99.9%</span> <span id="tabBadgeCrit" class="tab-count">0</span></button>
+                <button class="hud-tab" data-tab="warning"><span data-i18n="tab_warning">FALSOS POSITIVOS</span> <span id="tabBadgeWarn" class="tab-count">0</span></button>
+                <button class="hud-tab" data-tab="quarantine"><span data-i18n="tab_quarantine">QUARENTENA</span> <span id="tabBadgeQuar" class="tab-count">0</span></button>
+                <button class="hud-tab" data-tab="logs" data-i18n="tab_logs">REGRAS &amp; TERMINAL</button>
+            </nav>
+
+            <!-- SUBHEADER BAR -->
+            <div class="hud-subheader">
+                <div>
+                    <h2 id="sectionTitle">Central de Operações &amp; Diagnóstico em Tempo Real</h2>
+                    <p id="sectionDesc">Escolha abaixo como o scanner deve agir sobre os arquivos .js e fxmanifest.lua da sua base</p>
+                </div>
+                <div class="sim-pill">
+                    <span class="sim-label" id="lblProgressTitle" data-i18n="precision_label">STATUS</span>
+                    <div class="sim-slider">
+                        <div class="sim-fill" id="progressFill" style="width: 100%;"></div>
+                        <div class="sim-thumb" id="progressThumb" style="left: 100%;"></div>
+                    </div>
+                    <span class="sim-val" id="simValText">100%</span>
+                </div>
+            </div>
+
+            <!-- MAIN VIEWPORT: TAB 1 - 3x2 GRID OF INFORMATIVE CARDS -->
+            <div class="hud-viewport active" id="view-modes">
+                <div class="cards-grid">
+                    <!-- CARD 1: APENAS RELATÓRIO -->
+                    <div class="hud-card" data-mode="report" onclick="selectModeCard('report', this)">
+                        <div class="card-top">
+                            <span class="card-tag" data-i18n="c1_tag">01 • DIAGNÓSTICO SEGURO</span>
+                            <span class="card-radio"></span>
+                        </div>
+                        <div class="card-heading" data-i18n="c1_title">Apenas Relatório (Não Altera Arquivos)</div>
+                        <div class="card-specs">
+                            <span class="spec-chip" data-i18n="c1_s1">8 REGEX XOR</span>
+                            <span class="spec-chip" data-i18n="c1_s2">ATRIBUTO HIDDEN</span>
+                            <span class="spec-chip" data-i18n="c1_s3">FXMANIFEST</span>
+                        </div>
+                        <p class="card-caption" data-i18n="c1_desc">Varre toda a pasta resources/ identificando arquivos ocultos, códigos XOR e manifests infectados sem apagar nada.</p>
+                        <div class="card-action-bar">
+                            <span class="action-hint" data-i18n="c1_hint">Risco Zero • Somente Leitura</span>
+                            <span class="action-cta" data-i18n="c1_btn">ESCANEAR AGORA</span>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: LIMPEZA SEGURA 99.9% (SELECTED BY DEFAULT) -->
+                    <div class="hud-card selected" data-mode="clean_safe" onclick="selectModeCard('clean_safe', this)">
+                        <div class="card-top">
+                            <span class="card-tag" data-i18n="c2_tag">02 • RECOMENDADO (99.9%)</span>
+                            <span class="card-radio"></span>
+                        </div>
+                        <div class="card-heading" data-i18n="c2_title">Limpeza Inteligente Anti-Backdoor</div>
+                        <div class="card-specs">
+                            <span class="spec-chip chip-bright" data-i18n="c2_s1">HIDDEN + XOR</span>
+                            <span class="spec-chip chip-bright" data-i18n="c2_s2">JS EM MODS</span>
+                            <span class="spec-chip" data-i18n="c2_s3">PROTEGE NUI</span>
+                        </div>
+                        <p class="card-caption" data-i18n="c2_desc">Deleta apenas backdoors confirmados (arquivos ocultos + XOR, nomes falsos como gitignore.js e injeções no manifest). Preserva scripts visíveis.</p>
+                        <div class="card-action-bar">
+                            <span class="action-hint" data-i18n="c2_hint">Backup Automático na Quarentena</span>
+                            <span class="action-cta" data-i18n="c2_btn">LIMPAR 99.9%</span>
+                        </div>
+                    </div>
+
+                    <!-- CARD 3: VARREDURA INTERATIVA -->
+                    <div class="hud-card" data-mode="interactive" onclick="selectModeCard('interactive', this)">
+                        <div class="card-top">
+                            <span class="card-tag" data-i18n="c3_tag">03 • REVISÃO PASSO A PASSO</span>
+                            <span class="card-radio"></span>
+                        </div>
+                        <div class="card-heading" data-i18n="c3_title">Remoção Interativa Manual</div>
+                        <div class="card-specs">
+                            <span class="spec-chip" data-i18n="c3_s1">CONFIRMAÇÃO 1 A 1</span>
+                            <span class="spec-chip" data-i18n="c3_s2">EXIBE CAMINHO</span>
+                            <span class="spec-chip" data-i18n="c3_s3">MOTIVO TÉCNICO</span>
+                        </div>
+                        <p class="card-caption" data-i18n="c3_desc">Apresenta cada arquivo suspeito individualmente na tela com seu diretório e motivo exato para você aprovar ou ignorar.</p>
+                        <div class="card-action-bar">
+                            <span class="action-hint" data-i18n="c3_hint">Controle Total do Administrador</span>
+                            <span class="action-cta" data-i18n="c3_btn">INICIAR REVISÃO</span>
+                        </div>
+                    </div>
+
+                    <!-- CARD 4: LIMPEZA TOTAL -->
+                    <div class="hud-card" data-mode="clean_all" onclick="selectModeCard('clean_all', this)">
+                        <div class="card-top">
+                            <span class="card-tag" data-i18n="c4_tag">04 • MODO AGRESSIVO</span>
+                            <span class="card-radio"></span>
+                        </div>
+                        <div class="card-heading" data-i18n="c4_title">Limpeza Automática Total (100%)</div>
+                        <div class="card-specs">
+                            <span class="spec-chip" data-i18n="c4_s1">REMOVE CRÍTICOS</span>
+                            <span class="spec-chip" data-i18n="c4_s2">REMOVE SUSPEITOS</span>
+                            <span class="spec-chip" data-i18n="c4_s3">SALVA BACKUP</span>
+                        </div>
+                        <p class="card-caption" data-i18n="c4_desc">Remove todas as ameaças e avisos de XOR (inclusive em arquivos visíveis). Usa o Cofre de Quarentena para permitir reversão.</p>
+                        <div class="card-action-bar">
+                            <span class="action-hint" data-i18n="c4_hint">Atenção a Scripts Criptografados</span>
+                            <span class="action-cta" data-i18n="c4_btn">EXECUTAR TOTAL</span>
+                        </div>
+                    </div>
+
+                    <!-- CARD 5: INSPECIONAR AMEAÇAS E FALSOS POSITIVOS -->
+                    <div class="hud-card" data-mode="open_threats" onclick="switchTab('critical')">
+                        <div class="card-top">
+                            <span class="card-tag" data-i18n="c5_tag">05 • AUDITORIA DE ARQUIVOS</span>
+                            <span class="card-radio"></span>
+                        </div>
+                        <div class="card-heading" data-i18n="c5_title">Inspecionar Detecções &amp; Falsos Positivos</div>
+                        <div class="card-specs">
+                            <span class="spec-chip chip-bright"><span id="cardCritCount">0</span> CRÍTICOS</span>
+                            <span class="spec-chip"><span id="cardWarnCount">0</span> AVISOS</span>
+                            <span class="spec-chip"><span id="cardCleanCount">0</span> LIMPOS</span>
+                        </div>
+                        <p class="card-caption" data-i18n="c5_desc">Separa claramente o que é Backdoor 99.9% confirmado do que é código XOR em NUI/artifacts para você nunca apagar um script legítimo.</p>
+                        <div class="card-action-bar">
+                            <span class="action-hint" data-i18n="c5_hint">Ação Individual por Arquivo</span>
+                            <span class="action-cta" data-i18n="c5_btn">VER AMEAÇAS</span>
+                        </div>
+                    </div>
+
+                    <!-- CARD 6: QUARENTENA & RESTAURAÇÃO -->
+                    <div class="hud-card" data-mode="open_quarantine" onclick="switchTab('quarantine')">
+                        <div class="card-top">
+                            <span class="card-tag" data-i18n="c6_tag">06 • COFRE DE SEGURANÇA</span>
+                            <span class="card-radio"></span>
+                        </div>
+                        <div class="card-heading" data-i18n="c6_title">Quarentena &amp; Restauração Instantânea</div>
+                        <div class="card-specs">
+                            <span class="spec-chip chip-bright"><span id="cardQuarCount">0</span> BACKUPS</span>
+                            <span class="spec-chip" data-i18n="c6_s2">CAMINHO ORIGINAL</span>
+                            <span class="spec-chip" data-i18n="c6_s3">1-CLICK RESTORE</span>
+                        </div>
+                        <p class="card-caption" data-i18n="c6_desc">Todo arquivo .js deletado ou fxmanifest.lua limpo fica guardado aqui. Se algum script parar de funcionar, restaure em 1 clique.</p>
+                        <div class="card-action-bar">
+                            <span class="action-hint" data-i18n="c6_hint">Reversão Completa Sem Perdas</span>
+                            <span class="action-cta" data-i18n="c6_btn">ABRIR COFRE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: CRITICAL THREATS (99.9% BACKDOOR) -->
+            <div class="hud-viewport" id="view-critical">
+                <div id="criticalGrid" class="cards-grid threats-grid"></div>
+            </div>
+
+            <!-- TAB 3: WARNINGS (POSSIBLE FALSE POSITIVES) -->
+            <div class="hud-viewport" id="view-warning">
+                <div id="warningGrid" class="cards-grid threats-grid"></div>
+            </div>
+
+            <!-- TAB 4: QUARANTINE -->
+            <div class="hud-viewport" id="view-quarantine">
+                <div id="quarantineGrid" class="cards-grid threats-grid"></div>
+            </div>
+
+            <!-- TAB 5: RULES & TERMINAL LOG -->
+            <div class="hud-viewport" id="view-logs">
+                <div class="rules-banner">
+                    <div class="rule-item">
+                        <strong data-i18n="r1_t">1. Atributo Hidden + XOR (99.9%)</strong>
+                        <span data-i18n="r1_d">Backdoors reais ocultam o arquivo no Windows (attrib +h) e ofuscam o payload com XOR / String.fromCharCode.</span>
+                    </div>
+                    <div class="rule-item">
+                        <strong data-i18n="r2_t">2. Pastas &amp; Nomes Camuflados</strong>
+                        <span data-i18n="r2_d">Detecta gitignore.js, .env.local.js, .npmrc.js em pastas helpers, middleware, cache, logs, fonts, data, src.</span>
+                    </div>
+                    <div class="rule-item">
+                        <strong data-i18n="r3_t">3. Mods com Script JS (99.9%)</strong>
+                        <span data-i18n="r3_d">Mapas, roupas e armas (stream/ sem ui_page) não utilizam .js — qualquer script JS ali é apontado como crítico.</span>
+                    </div>
+                    <div class="rule-item">
+                        <strong data-i18n="r4_t">4. Proteção de Falsos Positivos</strong>
+                        <span data-i18n="r4_d">Arquivos visíveis com XOR ou dentro de node_modules/artifacts ficam separados na aba Falsos Positivos.</span>
+                    </div>
+                </div>
+                <div id="logBox" class="hud-terminal"></div>
+            </div>
+
+            <!-- LIVE STREAMING STATUS BAR AT BOTTOM OF WINDOW -->
+            <footer class="live-stream-bar" onclick="switchTab('logs')" title="Clique para abrir o Terminal Completo">
+                <span class="stream-dot" id="streamDot"></span>
+                <span class="stream-tag">TERMINAL LIVE</span>
+                <span class="stream-text" id="liveStreamText">Pronto para iniciar varredura...</span>
+            </footer>
+        </div>
+
+        <!-- CONFIRMATION MODAL -->
+        <div id="confirmModal" class="modal-backdrop hidden">
+            <div class="hud-modal">
+                <div class="card-top">
+                    <span class="card-tag tag-active" data-i18n="modal_tag">CONFIRMAÇÃO DE SEGURANÇA</span>
+                </div>
+                <h3 id="modalTitle">Confirmar Ação</h3>
+                <p id="modalBody"></p>
+                <div class="modal-btns">
+                    <button id="modalBtnCancel" class="tactile-btn" data-i18n="modal_cancel">CANCELAR / IGNORAR</button>
+                    <button id="modalBtnConfirm" class="tactile-btn tactile-btn-primary" data-i18n="modal_confirm">CONFIRMAR EXECUÇÃO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
