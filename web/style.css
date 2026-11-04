@@ -211,7 +211,6 @@ svg {
     color: #050507;
 }
 
-/* SEGMENTED HORIZONTAL TABS */
 .hud-tabs {
     background: var(--black-void);
     border: 1px solid #2c2c36;
@@ -261,7 +260,6 @@ svg {
     color: var(--white-pure);
 }
 
-/* SUBHEADER BAR */
 .hud-subheader {
     display: flex;
     align-items: center;
@@ -330,7 +328,6 @@ svg {
     color: var(--white-pure);
 }
 
-/* VIEWPORTS & LOCKED 3x2 CARDS GRID */
 .hud-viewport {
     display: none;
     flex: 1;
@@ -389,7 +386,6 @@ svg {
     border-color: #626275;
 }
 
-/* SELECTED CARD - CRISP SOLID 2PX WHITE BORDER */
 .hud-card.selected {
     background: #191921;
     border: 2px solid var(--white-pure);
