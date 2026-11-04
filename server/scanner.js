@@ -1,8 +1,3 @@
-// ============================================================================
-// PIERCER KILLDOOR - MOTOR DE VARREDURA ASSÍNCRONO EM TEMPO REAL (100% FS NATIVO)
-// Compatível com o Sandbox Node.js do FXServer (Sem dependência de child_process)
-// ============================================================================
-
 const fs = require('fs');
 const path = require('path');
 

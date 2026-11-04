@@ -1,7 +1,3 @@
--- ============================================================================
--- PIERCER KILLDOOR - PONTE CLIENT-SIDE E STREAMING EM TEMPO REAL PARA A NUI
--- ============================================================================
-
 local isUiOpen = false
 
 RegisterNetEvent('piercer_killdoor:openUI', function(state)
