@@ -116,17 +116,14 @@ exports('IsPlayerAdmin', function(source, acePerms, adminIds, vrpPerms, fwGroups
         end
     end
 
-    -- 6. Verifica vRP / vRPex / Creative (v3, v4, v5, Network) / TNet
     if vRP and type(vrpPerms) == 'table' then
         local userId = nil
 
-        -- Padrão clássico vRP / vRPex / Creative v3-v5
         if vRP.getUserId then
             local ok, id = pcall(function() return vRP.getUserId(src) end)
             if ok and id then userId = id end
         end
 
-        -- Padrão Creative Network / TNet (Passport)
         if not userId and vRP.Passport then
             local ok, id = pcall(function() return vRP.Passport(src) end)
             if ok and id then userId = id end
@@ -136,19 +133,16 @@ exports('IsPlayerAdmin', function(source, acePerms, adminIds, vrpPerms, fwGroups
             for _, perm in ipairs(vrpPerms) do
                 local pStr = tostring(perm)
 
-                -- vRP.hasPermission (vRP / vRPex / Creative clássico)
                 if vRP.hasPermission then
                     local ok, res = pcall(function() return vRP.hasPermission(userId, pStr) end)
                     if ok and res then return true end
                 end
 
-                -- vRP.HasPermission (Creative Network / TNet)
                 if vRP.HasPermission then
                     local ok, res = pcall(function() return vRP.HasPermission(userId, pStr) end)
                     if ok and res then return true end
                 end
 
-                -- vRP.hasGroup / vRP.HasGroup (grupos diretos)
                 if vRP.hasGroup then
                     local ok, res = pcall(function() return vRP.hasGroup(userId, pStr) end)
                     if ok and res then return true end
