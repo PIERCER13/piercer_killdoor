@@ -591,7 +591,6 @@ svg {
     line-height: 1.35;
 }
 
-/* TERMINAL */
 .hud-terminal {
     flex: 1;
     min-height: 0;
@@ -612,7 +611,6 @@ svg {
 .log-danger { color: var(--white-pure); font-weight: 800; }
 .log-muted  { color: #787886; }
 
-/* LIVE STREAMING FOOTER BAR */
 .live-stream-bar {
     height: 36px;
     background: var(--black-void);
