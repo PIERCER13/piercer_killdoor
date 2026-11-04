@@ -9,7 +9,6 @@
 <body>
     <div id="app" class="hidden">
         <div class="hud-window">
-            <!-- TOP HEADER -->
             <header class="hud-header">
                 <div class="header-titles">
                     <div class="title-row">
@@ -19,7 +18,6 @@
                     <p id="lblSubtitle" data-i18n="subtitle">Scanner Estático de Backdoors XOR, Arquivos Ocultos (Hidden) e Injeções em fxmanifest.lua</p>
                 </div>
                 <div class="header-actions">
-                    <!-- LANGUAGE SWITCHER WITH SVG FLAGS (BRAZIL / USA) -->
                     <div class="lang-switch" title="Idioma / Language">
                         <button id="btnLangPT" class="lang-opt active" onclick="setLanguage('pt-BR')">
                             <svg class="flag-svg" viewBox="0 0 28 20" fill="none">
@@ -57,7 +55,6 @@
                 </div>
             </header>
 
-            <!-- HORIZONTAL SEGMENTED TABS -->
             <nav class="hud-tabs">
                 <button class="hud-tab active" data-tab="modes" data-i18n="tab_modes">CENTRAL DE OPERAÇÕES</button>
                 <button class="hud-tab" data-tab="critical"><span data-i18n="tab_critical">BACKDOORS 99.9%</span> <span id="tabBadgeCrit" class="tab-count">0</span></button>
@@ -66,7 +63,6 @@
                 <button class="hud-tab" data-tab="logs" data-i18n="tab_logs">REGRAS &amp; TERMINAL</button>
             </nav>
 
-            <!-- SUBHEADER BAR -->
             <div class="hud-subheader">
                 <div>
                     <h2 id="sectionTitle">Central de Operações &amp; Diagnóstico em Tempo Real</h2>
@@ -82,10 +78,8 @@
                 </div>
             </div>
 
-            <!-- MAIN VIEWPORT: TAB 1 - 3x2 GRID OF INFORMATIVE CARDS -->
             <div class="hud-viewport active" id="view-modes">
                 <div class="cards-grid">
-                    <!-- CARD 1: APENAS RELATÓRIO -->
                     <div class="hud-card" data-mode="report" onclick="selectModeCard('report', this)">
                         <div class="card-top">
                             <span class="card-tag" data-i18n="c1_tag">01 • DIAGNÓSTICO SEGURO</span>
@@ -104,7 +98,6 @@
                         </div>
                     </div>
 
-                    <!-- CARD 2: LIMPEZA SEGURA 99.9% (SELECTED BY DEFAULT) -->
                     <div class="hud-card selected" data-mode="clean_safe" onclick="selectModeCard('clean_safe', this)">
                         <div class="card-top">
                             <span class="card-tag" data-i18n="c2_tag">02 • RECOMENDADO (99.9%)</span>
@@ -123,7 +116,6 @@
                         </div>
                     </div>
 
-                    <!-- CARD 3: VARREDURA INTERATIVA -->
                     <div class="hud-card" data-mode="interactive" onclick="selectModeCard('interactive', this)">
                         <div class="card-top">
                             <span class="card-tag" data-i18n="c3_tag">03 • REVISÃO PASSO A PASSO</span>
@@ -142,7 +134,6 @@
                         </div>
                     </div>
 
-                    <!-- CARD 4: LIMPEZA TOTAL -->
                     <div class="hud-card" data-mode="clean_all" onclick="selectModeCard('clean_all', this)">
                         <div class="card-top">
                             <span class="card-tag" data-i18n="c4_tag">04 • MODO AGRESSIVO</span>

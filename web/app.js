@@ -1,7 +1,3 @@
-// ============================================================================
-// PIERCER KILLDOOR - NUI CONTROLLER (MONOCHROME TACTILE + PT-BR / EN-US)
-// ============================================================================
-
 const resourceName = window.GetParentResourceName ? window.GetParentResourceName() : 'piercer_killdoor';
 
 let currentLang = localStorage.getItem('piercer_killdoor_lang') || 'pt-BR';
@@ -227,10 +223,6 @@ function postNUI(endpoint, data = {}) {
     }).catch(() => {});
 }
 
-// ============================================================================
-// NAVEGAÇÃO ENTRE ABAS E CARDS
-// ============================================================================
-
 function switchTab(tabId) {
     activeTabId = tabId;
     document.querySelectorAll('.hud-tab').forEach(btn => {
@@ -298,10 +290,6 @@ function selectModeCard(mode, el) {
         );
     }
 }
-
-// ============================================================================
-// RENDERIZAÇÃO DE DADOS
-// ============================================================================
 
 function renderState(state) {
     if (!state) return;
@@ -438,10 +426,6 @@ function renderTerminalLogs() {
     logBox.scrollTop = logBox.scrollHeight;
 }
 
-// ============================================================================
-// MODAL E MODO INTERATIVO
-// ============================================================================
-
 function showModal(title, body, onConfirm, onCancel = null) {
     const modal = document.getElementById('confirmModal');
     document.getElementById('modalTitle').textContent = title;
@@ -476,10 +460,6 @@ function runNextInteractiveStep() {
         }
     );
 }
-
-// ============================================================================
-// BOTÕES GERAIS E EVENTOS NUI
-// ============================================================================
 
 document.getElementById('btnClose').addEventListener('click', () => {
     document.getElementById('app').classList.add('hidden');
@@ -520,7 +500,6 @@ window.addEventListener('message', (event) => {
         currentState.logs.push(data.entry);
         if (currentState.logs.length > 600) currentState.logs.shift();
 
-        // Append line in real time to terminal
         const logBox = document.getElementById('logBox');
         if (logBox) {
             const mutedPlaceholder = logBox.querySelector('.log-muted');
@@ -534,7 +513,6 @@ window.addEventListener('message', (event) => {
             logBox.scrollTop = logBox.scrollHeight;
         }
 
-        // Update live stream bar at bottom
         const liveText = document.getElementById('liveStreamText');
         if (liveText) {
             liveText.textContent = `[${data.entry.time}] ${data.entry.text}`;
