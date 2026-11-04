@@ -58,7 +58,6 @@ svg {
     overflow: hidden;
 }
 
-/* HEADER */
 .hud-header {
     display: flex;
     align-items: center;
@@ -115,7 +114,6 @@ svg {
     flex-shrink: 0;
 }
 
-/* LANGUAGE SWITCHER WITH FLAGS */
 .lang-switch {
     background: var(--black-void);
     border: 1px solid #32323e;
@@ -159,7 +157,6 @@ svg {
     border-radius: 2px;
 }
 
-/* REALISTIC TACTILE BUTTONS (CRISP BORDERS) */
 .tactile-btn {
     background: #18181f;
     border: 1px solid #3c3c4a;
