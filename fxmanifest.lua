@@ -7,8 +7,6 @@ author '@piercer'
 description 'Scanner e Removedor Inteligente de Backdoors com Quarentena integrado ao framezero_bridge'
 version '1.1.0'
 
--- Dependência oficial da bridge para auto-adaptação automática em qualquer framework
--- (vRP, vRPex, Creative, TNet, QBCore, Qbox, ESX, OxCore, NDCore, Standalone)
 dependency 'framezero_bridge'
 
 ui_page 'web/index.html'
