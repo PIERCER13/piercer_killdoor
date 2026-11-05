@@ -1,7 +1,3 @@
-// ============================================================================
-// PIERCER KILLDOOR - NUI CONTROLLER (MONOCHROME TACTILE + PT-BR / EN-US)
-// ============================================================================
-
 const resourceName = window.GetParentResourceName ? window.GetParentResourceName() : 'piercer_killdoor';
 
 let currentLang = localStorage.getItem('piercer_killdoor_lang') || 'pt-BR';
@@ -236,10 +232,6 @@ function postNUI(endpoint, data = {}) {
         body: JSON.stringify(data)
     }).catch(() => {});
 }
-
-// ============================================================================
-// NAVEGAÇÃO ENTRE ABAS E CARDS
-// ============================================================================
 
 function switchTab(tabId) {
     activeTabId = tabId;
