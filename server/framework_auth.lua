@@ -68,9 +68,7 @@ exports('IsPlayerAdmin', function(source, acePerms, adminIds, vrpPerms, fwGroups
         end
     end
 
-    -- 3. Verificação com auto-adaptação pela framezero_bridge
     if framezero and framezero.HasPermission then
-        -- Permissões / Grupos de vRP / Creative / TNet
         if type(vrpPerms) == 'table' then
             for _, perm in ipairs(vrpPerms) do
                 local ok, has = pcall(framezero.HasPermission, src, tostring(perm))
@@ -80,7 +78,6 @@ exports('IsPlayerAdmin', function(source, acePerms, adminIds, vrpPerms, fwGroups
             end
         end
 
-        -- Grupos de QBCore / Qbox / ESX / OxCore
         if type(fwGroups) == 'table' then
             for _, grp in ipairs(fwGroups) do
                 local ok, has = pcall(framezero.HasPermission, src, tostring(grp))
@@ -91,7 +88,6 @@ exports('IsPlayerAdmin', function(source, acePerms, adminIds, vrpPerms, fwGroups
         end
     end
 
-    -- 4. Fallback de contingência direta caso a bridge ainda esteja ligando
     if GetResourceState('qbx_core') == 'started' and type(fwGroups) == 'table' then
         for _, grp in ipairs(fwGroups) do
             local ok, res = pcall(function()
