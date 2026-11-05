@@ -894,10 +894,6 @@ RegisterCommand(Config.ConsoleCommand, (source, args) => {
     }
 }, false);
 
-// ============================================================================
-// EVENTOS DE REDE (COMUNICAÇÃO COM O PAINEL NUI IN-GAME)
-// ============================================================================
-
 onNet('piercer_killdoor:requestOpen', () => {
     const src = global.source;
     if (!checkPermission(src)) {
