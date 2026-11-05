@@ -722,9 +722,6 @@ svg {
     font-weight: 600;
 }
 
-/* ============================================================================
-   PROMPT CONFIRMATION MODAL (HIGH NITIDEZ & SMOOTH POPUP)
-   ============================================================================ */
 .modal-backdrop {
     position: fixed;
     inset: 0;
