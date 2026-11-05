@@ -1,13 +1,6 @@
--- ============================================================================
--- PIERCER KILLDOOR - AUTO-ADAPTAÇÃO MULTI-FRAMEWORK VIA FRAMEZERO_BRIDGE
--- Compatível nativamente com: vRP, vRPex, Creative (todas as versões),
--- TNet, QBCore, Qbox, ESX, OxCore, NDCore e Standalone (ACE).
--- ============================================================================
-
 local detectedFramework = "Inicializando framezero_bridge..."
 
 CreateThread(function()
-    -- Aguarda a bridge carregar e detectar automaticamente o framework da base
     if framezero and framezero.WaitReady then
         local ready = framezero.WaitReady(15000)
         if ready then
@@ -25,12 +18,10 @@ CreateThread(function()
     end
 end)
 
--- Retorna a base detectada pelo framezero_bridge
 exports('GetDetectedFramework', function()
     return detectedFramework
 end)
 
--- Envia notificação adaptada ao sistema da base através do framezero_bridge
 exports('NotifyPlayer', function(source, message, kind)
     local src = tonumber(source)
     if not src or src <= 0 then return end
@@ -52,14 +43,12 @@ exports('NotifyPlayer', function(source, message, kind)
     TriggerClientEvent('piercer_killdoor:notify', src, tostring(message), kind)
 end)
 
--- Verificação unificada de permissão de administrador
 exports('IsPlayerAdmin', function(source, acePerms, adminIds, vrpPerms, fwGroups)
     local src = tonumber(source)
     if not src or src == 0 then
-        return true -- Console do servidor / txAdmin sempre permitido
+        return true 
     end
 
-    -- 1. ACE nativo do FiveM (ex: killdoor.admin, command, admin)
     if type(acePerms) == 'table' then
         for _, ace in ipairs(acePerms) do
             if IsPlayerAceAllowed(src, tostring(ace)) then
@@ -68,7 +57,6 @@ exports('IsPlayerAdmin', function(source, acePerms, adminIds, vrpPerms, fwGroups
         end
     end
 
-    -- 2. Identificadores liberados diretamente no config (license, discord, fivem)
     if type(adminIds) == 'table' and #adminIds > 0 then
         local playerIds = GetPlayerIdentifiers(src)
         for _, pId in ipairs(playerIds) do
