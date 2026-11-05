@@ -191,10 +191,6 @@ function restoreFromQuarantine(quarantineId) {
     }
 }
 
-// ============================================================================
-// ANÁLISE DE CONTEXTO DE RESOURCE
-// ============================================================================
-
 function inspectResourceContext(resourceDir) {
     const context = {
         resourceName: path.basename(resourceDir),
@@ -237,10 +233,6 @@ function inspectResourceContext(resourceDir) {
     return context;
 }
 
-// ============================================================================
-// LIMPEZA DE AMEAÇAS (100% FS NATIVO - SEM CHILD_PROCESS)
-// ============================================================================
-
 function cleanThreatItem(threat) {
     if (threat.cleaned) return true;
 
@@ -252,7 +244,6 @@ function cleanThreatItem(threat) {
 
         if (threat.type === 'malicious_js') {
             if (fs.existsSync(threat.filePath)) {
-                // Libera permissão de escrita via fs nativo antes de remover
                 try { fs.chmodSync(threat.filePath, 0o666); } catch (e) {}
                 fs.unlinkSync(threat.filePath);
             }
@@ -274,10 +265,6 @@ function cleanThreatItem(threat) {
     }
     return false;
 }
-
-// ============================================================================
-// VARREDURA ASSÍNCRONA EM TEMPO REAL
-// ============================================================================
 
 async function runScan(customRootDir = null, mode = 'report') {
     if (lastScanState.scanning) {
@@ -389,9 +376,6 @@ async function runScan(customRootDir = null, mode = 'report') {
 
         let threatCounter = 1;
 
-        // --------------------------------------------------------------------
-        // ETAPA 2: VARREDURA DE MANIFESTS (fxmanifest.lua / __resource.lua)
-        // --------------------------------------------------------------------
         appendScanLog(`[ETAPA 2/3] Verificando ${manifestFiles.length} arquivo(s) fxmanifest.lua / __resource.lua...`, 'muted');
         for (let mIdx = 0; mIdx < manifestFiles.length; mIdx++) {
             const item = manifestFiles[mIdx];
@@ -451,9 +435,6 @@ async function runScan(customRootDir = null, mode = 'report') {
             } catch (e) {}
         }
 
-        // --------------------------------------------------------------------
-        // ETAPA 3: VARREDURA DE ARQUIVOS JAVASCRIPT (*.js)
-        // --------------------------------------------------------------------
         appendScanLog(`[ETAPA 3/3] Inspecionando ${jsFiles.length} arquivo(s) JavaScript (.js)...`, 'muted');
         for (let jIdx = 0; jIdx < jsFiles.length; jIdx++) {
             const item = jsFiles[jIdx];
@@ -485,7 +466,6 @@ async function runScan(customRootDir = null, mode = 'report') {
             const isSafeDotFile = Config.Detection.SafeDotFiles.some(s => lowerFileName === s.toLowerCase());
             const startsWithDot = fileName.startsWith('.') && !isSafeDotFile;
 
-            // Detecta arquivos ou pastas ocultas (iniciadas com ponto ou somente-leitura camufladas)
             const hasHiddenSegment = parts.some(seg => seg.startsWith('.') && seg !== '.' && seg !== '..' && !isSafeDotFile);
             let isReadOnlyHidden = false;
             try {
@@ -622,9 +602,6 @@ async function runScan(customRootDir = null, mode = 'report') {
             broadcastToUi('piercer_killdoor:updateState', getPublicScanState());
         }
 
-        // --------------------------------------------------------------------
-        // ETAPA 4: VARREDURA DE SCRIPTS LUA (*.lua) — CIPHER, BLUM & DROPPERS
-        // --------------------------------------------------------------------
         if (Config.ScanLuaFiles && luaFiles.length > 0) {
             appendScanLog(`[ETAPA 4/4] Inspecionando ${luaFiles.length} script(s) Lua (.lua) para Cipher/Blum/RCE Droppers...`, 'muted');
             for (let lIdx = 0; lIdx < luaFiles.length; lIdx++) {
@@ -754,10 +731,6 @@ function getPublicScanState() {
     };
 }
 
-// ============================================================================
-// GERAÇÃO DE RELATÓRIO EM TEXTO (.TXT)
-// ============================================================================
-
 function generateAndSaveReport() {
     recalculateStats();
     const s = lastScanState.stats;
@@ -825,10 +798,6 @@ function generateAndSaveReport() {
         return { ok: false, msg: e.message };
     }
 }
-
-// ============================================================================
-// VERIFICAÇÃO DE PERMISSÃO
-// ============================================================================
 
 function checkPermission(source) {
     if (!source || source === 0) return true;
