@@ -302,10 +302,6 @@ function selectModeCard(mode, el) {
     }
 }
 
-// ============================================================================
-// RENDERIZAÇÃO DE DADOS
-// ============================================================================
-
 function renderState(state) {
     if (!state) return;
     currentState = state;
@@ -446,10 +442,6 @@ function restoreQuarantine(quarantineId) {
     postNUI('restoreSingle', { quarantineId });
 }
 
-// ============================================================================
-// MODAL E MODO INTERATIVO (CONFIRMAÇÃO PROMPT)
-// ============================================================================
-
 function showModal(title, body, onConfirm, onCancel = null) {
     const modal = document.getElementById('confirmModal');
     if (!modal) return;
@@ -479,7 +471,6 @@ function showModal(title, body, onConfirm, onCancel = null) {
     };
 }
 
-// Click outside modal box to close
 const modalElem = document.getElementById('confirmModal');
 if (modalElem) {
     modalElem.addEventListener('click', (e) => {
@@ -516,10 +507,6 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 }
-
-// ============================================================================
-// BOTÕES GERAIS E EVENTOS NUI
-// ============================================================================
 
 document.getElementById('btnClose').addEventListener('click', () => {
     document.getElementById('app').classList.add('hidden');
@@ -588,7 +575,6 @@ window.addEventListener('message', (event) => {
             logBox.scrollTop = logBox.scrollHeight;
         }
 
-        // Update live stream bar at bottom
         const liveText = document.getElementById('liveStreamText');
         if (liveText) {
             liveText.textContent = `[${data.entry.time}] ${data.entry.text}`;
@@ -627,5 +613,4 @@ window.addEventListener('message', (event) => {
     }
 });
 
-// Inicialização imediata com idioma salvo
 setLanguage(currentLang);
