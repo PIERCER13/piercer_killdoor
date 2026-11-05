@@ -118,7 +118,6 @@ svg {
     flex-shrink: 0;
 }
 
-/* LANGUAGE SWITCHER WITH CRISP SVG FLAGS */
 .lang-switch {
     background: #050508;
     border: 1.5px solid #2e2e3e;
@@ -167,7 +166,6 @@ svg {
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
 }
 
-/* REALISTIC TACTILE BUTTONS */
 .tactile-btn {
     background: #151520;
     border: 1.5px solid #363648;
@@ -224,9 +222,6 @@ svg {
     color: #050508;
 }
 
-/* ============================================================================
-   SEGMENTED HORIZONTAL TABS (HIGH NITIDEZ)
-   ============================================================================ */
 .hud-tabs {
     background: #050508;
     border: 1.5px solid #262634;
@@ -278,7 +273,6 @@ svg {
     color: var(--white-pure);
 }
 
-/* SUBHEADER BAR */
 .hud-subheader {
     display: flex;
     align-items: center;
@@ -347,9 +341,6 @@ svg {
     color: var(--white-pure);
 }
 
-/* ============================================================================
-   VIEWPORT: TAB 1 (LOCKED 3x2 CARDS GRID — STRICTLY NO SCROLLBAR)
-   ============================================================================ */
 .hud-viewport {
     display: none;
     flex: 1;
@@ -567,9 +558,6 @@ svg {
     font-weight: 900;
 }
 
-/* ============================================================================
-   OTHER TABS (THREATS, QUARANTINE, TERMINAL)
-   ============================================================================ */
 .threats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -610,7 +598,6 @@ svg {
     line-height: 1.35;
 }
 
-/* TERMINAL TAB */
 .rules-banner {
     background: #050508;
     border: 1px solid #242432;
@@ -663,9 +650,6 @@ svg {
 .log-danger { color: #ef4444; font-weight: 700; }
 .log-muted { color: #727288; }
 
-/* ============================================================================
-   BOTTOM STATUS BAR (STREAMING REAL-TIME)
-   ============================================================================ */
 .live-stream-bar {
     background: #060609;
     border: 1.5px solid #262634;
