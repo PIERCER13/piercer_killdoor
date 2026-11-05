@@ -45,9 +45,6 @@ svg {
     background: rgba(0, 0, 0, 0.85);
 }
 
-/* ============================================================================
-   MAIN CHASSIS - PIXEL-PERFECT LOCKED RATIO (NO SCROLLBAR IN MAIN VIEW)
-   ============================================================================ */
 .hud-window {
     width: 1120px;
     height: 670px;
