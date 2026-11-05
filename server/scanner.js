@@ -1,8 +1,3 @@
-// ============================================================================
-// PIERCER KILLDOOR - MOTOR DE VARREDURA ASSÍNCRONO EM TEMPO REAL (100% FS NATIVO)
-// Compatível com o Sandbox Node.js do FXServer (Sem dependência de child_process)
-// ============================================================================
-
 const fs = require('fs');
 const path = require('path');
 
@@ -29,7 +24,6 @@ const CompiledLuaPatterns = (Config.Detection.LuaPatterns || []).map(p => ({
     regex: new RegExp(p.regex, 'i')
 }));
 
-// Clientes com o painel aberto para receber streaming em tempo real
 const activeUiClients = new Set();
 
 let lastScanState = {
@@ -105,7 +99,6 @@ function appendScanLog(text, level = 'info') {
     };
     logConsole(text, colorMap[level] || '^7');
 
-    // Envia a linha de log IMEDIATAMENTE em tempo real para o painel NUI
     broadcastToUi('piercer_killdoor:liveLog', entry);
 }
 
@@ -118,10 +111,6 @@ function broadcastProgress(pct, currentFile = '') {
         stats: lastScanState.stats
     });
 }
-
-// ============================================================================
-// SISTEMA DE QUARENTENA E RESTAURAÇÃO
-// ============================================================================
 
 function loadQuarantineIndex() {
     if (!fs.existsSync(QUARANTINE_INDEX)) return [];
