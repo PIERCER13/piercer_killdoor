@@ -814,10 +814,6 @@ function checkPermission(source) {
     }
 }
 
-// ============================================================================
-// COMANDOS DE CONSOLE / TXADMIN E IN-GAME
-// ============================================================================
-
 RegisterCommand(Config.ConsoleCommand, (source, args) => {
     if (!checkPermission(source)) {
         if (source > 0) {
