@@ -17,9 +17,6 @@ const KillDoorConfig = {
     // Escanear arquivos Lua (.lua) do servidor além de scripts JavaScript (.js)
     ScanLuaFiles: true,
 
-    // ========================================================================
-    // PERMISSÕES E FRAMEWORKS (vRP, vRPex, Creative, TNet, QBCore, QBox, ESX)
-    // ========================================================================
     Permissions: {
         // Permissão ACE nativa do FiveM (ex: add_ace group.admin killdoor.admin allow)
         AcePermissions: [
@@ -57,9 +54,6 @@ const KillDoorConfig = {
         ]
     },
 
-    // ========================================================================
-    // REGRAS DE DETECÇÃO E PROTEÇÃO CONTRA FALSOS POSITIVOS
-    // ========================================================================
     Detection: {
         // Pastas que NUNCA devem ter arquivos apagados automaticamente por XOR isolado
         // (evita quebrar artifacts do FXServer ou pacotes legítimos do node_modules)
@@ -126,9 +120,6 @@ const KillDoorConfig = {
         // Regex de injeção no fxmanifest.lua / __resource.lua (comentário --[[...]] seguido de 5+ espaços e um arquivo .js ou .lua)
         ManifestInjectPattern: String.raw`--\[\[.*?\]\]\s{5,}['"](.*?\.(?:js|lua))['"]`,
 
-        // ====================================================================
-        // PADRÕES DE BACKDOORS E CIPHER EM LUA (fivem-backdoor-scanner & Livvux)
-        // ====================================================================
         LuaPatterns: [
             // 1. RCE Dropper: assert(load(...)) ou assert(loadstring(...))
             {

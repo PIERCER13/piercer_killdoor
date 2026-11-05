@@ -799,6 +799,15 @@ function generateAndSaveReport() {
     }
 }
 
+function notifyUser(source, msg, kind = 'info') {
+    if (!source || source === 0) return;
+    try {
+        global.exports[RESOURCE_NAME].NotifyPlayer(source, msg, kind);
+    } catch (e) {
+        emitNet('piercer_killdoor:notify', source, msg, kind);
+    }
+}
+
 function checkPermission(source) {
     if (!source || source === 0) return true;
     try {
@@ -817,7 +826,7 @@ function checkPermission(source) {
 RegisterCommand(Config.ConsoleCommand, (source, args) => {
     if (!checkPermission(source)) {
         if (source > 0) {
-            emitNet('piercer_killdoor:notify', source, 'Você não tem permissão para usar o Piercer KillDoor.', 'danger');
+            notifyUser(source, 'Você não tem permissão para usar o Piercer KillDoor.', 'danger');
         }
         return;
     }
@@ -897,7 +906,7 @@ RegisterCommand(Config.ConsoleCommand, (source, args) => {
 onNet('piercer_killdoor:requestOpen', () => {
     const src = global.source;
     if (!checkPermission(src)) {
-        emitNet('piercer_killdoor:notify', src, 'Sem permissão de administrador.', 'danger');
+        notifyUser(src, 'Sem permissão de administrador.', 'danger');
         return;
     }
     activeUiClients.add(src);
@@ -961,6 +970,13 @@ onNet('piercer_killdoor:saveReport', () => {
     emitNet('piercer_killdoor:reportSaved', src, rep);
     broadcastToUi('piercer_killdoor:updateState', getPublicScanState());
 });
+
+setTimeout(() => {
+    try {
+        const fw = global.exports[RESOURCE_NAME].GetDetectedFramework();
+        logConsole(`Base detectada: ^2${fw}^7`, '^5');
+    } catch (e) {}
+}, 1200);
 
 if (Config.AutoScanOnStart) {
     setTimeout(() => {

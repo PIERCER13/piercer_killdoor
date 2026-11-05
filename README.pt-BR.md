@@ -31,7 +31,7 @@ Os invasores costumam esconder esses backdoors utilizando técnicas bem conhecid
 
 O **piercer_killdoor** analisa todo o diretório de resources do servidor em busca desses padrões, isolando arquivos suspeitos de falsos positivos e permitindo remoção e restauração rápida via cofre de **Quarentena**.
 
-- 🧩 **100% Standalone & Multi-Framework**: Compatível automaticamente com vRP, vRPex, Creative (todas as versões), TNet, QBCore, Qbox, ESX e permissões ACE nativas.
+- 🧩 **Auto-Adaptação via framezero_bridge**: Detecta e se integra automaticamente com qualquer base (vRP tradicional, vRPex, Creative v3/v5/Network, TNet, QBCore, Qbox, ESX, OxCore ou Standalone ACE) para gerenciamento unificado de permissões e notificações.
 - ⚡ **Varredura em Tempo Real**: Streaming assíncrono linha a linha sem travar o servidor e 100% integrado ao sandbox nativo do FXServer (sem dependência de `child_process`).
 - 🛡️ **Proteção contra Falsos Positivos**: Não sai apagando scripts criptografados ou assets de NUI legítimos; separa alertas de 99.9% de certeza dos avisos para análise manual.
 - 📦 **Cofre de Quarentena**: Todo arquivo deletado ou linha de manifest limpa possui backup automático e pode ser revertido em 1 clique.
@@ -41,15 +41,20 @@ O **piercer_killdoor** analisa todo o diretório de resources do servidor em bus
 
 ## 🚀 Instalação
 
-1. Coloque a pasta `piercer_killdoor` dentro do seu diretório `resources/`:
+1. Certifique-se de que a resource **`framezero_bridge`** está instalada em sua base:
+   ```
+   resources/[framezero-dev-scripts]/framezero_bridge
+   ```
+2. Coloque a pasta `piercer_killdoor` dentro do seu diretório `resources/`:
    ```
    resources/[framezero-dev-scripts]/piercer_killdoor
    ```
-2. Adicione ao seu `server.cfg`:
+3. Adicione ao seu `server.cfg` (garantindo que a bridge inicie antes):
    ```cfg
+   ensure framezero_bridge
    ensure piercer_killdoor
    ```
-3. Ao iniciar o servidor, o script executará automaticamente um diagnóstico seguro inicial (Apenas Relatório) no console.
+4. Ao iniciar o servidor, o script se auto-adaptará ao framework da sua base e executará automaticamente um diagnóstico seguro inicial (Apenas Relatório) no console.
 
 ---
 

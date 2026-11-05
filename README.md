@@ -31,7 +31,7 @@ Attackers commonly hide backdoors using well-known techniques:
 
 **piercer_killdoor** scans your entire server resources directory for these signatures, isolates false positives from genuine backdoors, and enables rapid deletion with safe rollback through the **Quarantine Vault**.
 
-- 🧩 **100% Standalone & Multi-Framework**: Built-in support for vRP, vRPex, Creative (all versions), TNet, QBCore, Qbox, ESX, and native FiveM ACE permissions.
+- 🧩 **Auto-Adaptation via framezero_bridge**: Automatically detects and adapts to any server framework (vRP traditional, vRPex, Creative v3/v5/Network, TNet, QBCore, Qbox, ESX, OxCore, or Standalone ACE) for unified permissions and notifications.
 - ⚡ **Real-Time Streaming**: Asynchronous line-by-line scanning without freezing the server, fully compliant with the FXServer Node.js sandbox (zero `child_process` dependency).
 - 🛡️ **False Positive Guard**: Never deletes encrypted paid scripts or legitimate NUI assets blindly; separates 99.9% confirmed backdoors from manual inspection warnings.
 - 📦 **Quarantine Vault**: Every deleted file or cleaned manifest line is automatically backed up and can be restored in 1 click.
@@ -41,15 +41,20 @@ Attackers commonly hide backdoors using well-known techniques:
 
 ## 🚀 Installation
 
-1. Copy the `piercer_killdoor` folder into your `resources/` directory:
+1. Ensure the **`framezero_bridge`** resource is installed on your server:
+   ```
+   resources/[framezero-dev-scripts]/framezero_bridge
+   ```
+2. Place the `piercer_killdoor` folder in your `resources/` directory:
    ```
    resources/[framezero-dev-scripts]/piercer_killdoor
    ```
-2. Add to your `server.cfg`:
+3. Add to your `server.cfg` (ensuring the bridge starts first):
    ```cfg
+   ensure framezero_bridge
    ensure piercer_killdoor
    ```
-3. Upon server startup, the resource will run an initial safe diagnostic scan (Report Only) directly in the console.
+4. Upon server startup, the script will auto-adapt to your framework and run an initial safe diagnostic scan (Report Only) directly in the console.
 
 ---
 
