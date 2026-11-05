@@ -1,3 +1,8 @@
+// ============================================================================
+// PIERCER KILLDOOR - MOTOR DE VARREDURA ASSÍNCRONO EM TEMPO REAL (100% FS NATIVO)
+// Compatível com o Sandbox Node.js do FXServer (Sem dependência de child_process)
+// ============================================================================
+
 const fs = require('fs');
 const path = require('path');
 
@@ -15,9 +20,16 @@ for (const dir of [QUARANTINE_DIR, REPORTS_DIR]) {
 
 const Config = global.KillDoorConfig || require('../config.js');
 
-const CompiledXorRegexes = Config.Detection.XorPatterns.map(p => new RegExp(p, 's'));
+const CompiledXorRegexes = (Config.Detection.XorPatterns || []).map(p => new RegExp(p, 's'));
 const ManifestInjectRegex = new RegExp(Config.Detection.ManifestInjectPattern);
+const CompiledLuaPatterns = (Config.Detection.LuaPatterns || []).map(p => ({
+    name: p.name,
+    severity: p.severity,
+    description: p.description,
+    regex: new RegExp(p.regex, 'i')
+}));
 
+// Clientes com o painel aberto para receber streaming em tempo real
 const activeUiClients = new Set();
 
 let lastScanState = {
@@ -93,6 +105,7 @@ function appendScanLog(text, level = 'info') {
     };
     logConsole(text, colorMap[level] || '^7');
 
+    // Envia a linha de log IMEDIATAMENTE em tempo real para o painel NUI
     broadcastToUi('piercer_killdoor:liveLog', entry);
 }
 
@@ -105,6 +118,10 @@ function broadcastProgress(pct, currentFile = '') {
         stats: lastScanState.stats
     });
 }
+
+// ============================================================================
+// SISTEMA DE QUARENTENA E RESTAURAÇÃO
+// ============================================================================
 
 function loadQuarantineIndex() {
     if (!fs.existsSync(QUARANTINE_INDEX)) return [];
@@ -185,6 +202,10 @@ function restoreFromQuarantine(quarantineId) {
     }
 }
 
+// ============================================================================
+// ANÁLISE DE CONTEXTO DE RESOURCE
+// ============================================================================
+
 function inspectResourceContext(resourceDir) {
     const context = {
         resourceName: path.basename(resourceDir),
@@ -227,6 +248,10 @@ function inspectResourceContext(resourceDir) {
     return context;
 }
 
+// ============================================================================
+// LIMPEZA DE AMEAÇAS (100% FS NATIVO - SEM CHILD_PROCESS)
+// ============================================================================
+
 function cleanThreatItem(threat) {
     if (threat.cleaned) return true;
 
@@ -238,6 +263,7 @@ function cleanThreatItem(threat) {
 
         if (threat.type === 'malicious_js') {
             if (fs.existsSync(threat.filePath)) {
+                // Libera permissão de escrita via fs nativo antes de remover
                 try { fs.chmodSync(threat.filePath, 0o666); } catch (e) {}
                 fs.unlinkSync(threat.filePath);
             }
@@ -259,6 +285,10 @@ function cleanThreatItem(threat) {
     }
     return false;
 }
+
+// ============================================================================
+// VARREDURA ASSÍNCRONA EM TEMPO REAL
+// ============================================================================
 
 async function runScan(customRootDir = null, mode = 'report') {
     if (lastScanState.scanning) {
@@ -308,6 +338,7 @@ async function runScan(customRootDir = null, mode = 'report') {
 
         const selfNormalized = normalizePath(RESOURCE_PATH).toLowerCase();
         const jsFiles = [];
+        const luaFiles = [];
         const manifestFiles = [];
         const resourceContexts = new Map();
 
@@ -354,6 +385,8 @@ async function runScan(customRootDir = null, mode = 'report') {
                         manifestFiles.push({ fullPath, resourceDir: currentResourceDir || currentDir });
                     } else if (lowerName.endsWith('.js')) {
                         jsFiles.push({ fullPath, resourceDir: currentResourceDir });
+                    } else if (Config.ScanLuaFiles && lowerName.endsWith('.lua')) {
+                        luaFiles.push({ fullPath, resourceDir: currentResourceDir });
                     }
                 }
             }
@@ -361,12 +394,15 @@ async function runScan(customRootDir = null, mode = 'report') {
 
         await walkDir(rootDir);
 
-        lastScanState.stats.totalFilesScanned = jsFiles.length;
+        lastScanState.stats.totalFilesScanned = jsFiles.length + luaFiles.length;
         lastScanState.stats.totalManifestsScanned = manifestFiles.length;
-        appendScanLog(`[OK] Total indexado: ${resourceContexts.size} resources | ${manifestFiles.length} manifests | ${jsFiles.length} arquivos .js`, 'accent');
+        appendScanLog(`[OK] Total indexado: ${resourceContexts.size} resources | ${manifestFiles.length} manifests | ${jsFiles.length} arquivos .js | ${luaFiles.length} scripts .lua`, 'accent');
 
         let threatCounter = 1;
 
+        // --------------------------------------------------------------------
+        // ETAPA 2: VARREDURA DE MANIFESTS (fxmanifest.lua / __resource.lua)
+        // --------------------------------------------------------------------
         appendScanLog(`[ETAPA 2/3] Verificando ${manifestFiles.length} arquivo(s) fxmanifest.lua / __resource.lua...`, 'muted');
         for (let mIdx = 0; mIdx < manifestFiles.length; mIdx++) {
             const item = manifestFiles[mIdx];
@@ -426,6 +462,9 @@ async function runScan(customRootDir = null, mode = 'report') {
             } catch (e) {}
         }
 
+        // --------------------------------------------------------------------
+        // ETAPA 3: VARREDURA DE ARQUIVOS JAVASCRIPT (*.js)
+        // --------------------------------------------------------------------
         appendScanLog(`[ETAPA 3/3] Inspecionando ${jsFiles.length} arquivo(s) JavaScript (.js)...`, 'muted');
         for (let jIdx = 0; jIdx < jsFiles.length; jIdx++) {
             const item = jsFiles[jIdx];
@@ -457,6 +496,7 @@ async function runScan(customRootDir = null, mode = 'report') {
             const isSafeDotFile = Config.Detection.SafeDotFiles.some(s => lowerFileName === s.toLowerCase());
             const startsWithDot = fileName.startsWith('.') && !isSafeDotFile;
 
+            // Detecta arquivos ou pastas ocultas (iniciadas com ponto ou somente-leitura camufladas)
             const hasHiddenSegment = parts.some(seg => seg.startsWith('.') && seg !== '.' && seg !== '..' && !isSafeDotFile);
             let isReadOnlyHidden = false;
             try {
@@ -593,11 +633,92 @@ async function runScan(customRootDir = null, mode = 'report') {
             broadcastToUi('piercer_killdoor:updateState', getPublicScanState());
         }
 
+        // --------------------------------------------------------------------
+        // ETAPA 4: VARREDURA DE SCRIPTS LUA (*.lua) — CIPHER, BLUM & DROPPERS
+        // --------------------------------------------------------------------
+        if (Config.ScanLuaFiles && luaFiles.length > 0) {
+            appendScanLog(`[ETAPA 4/4] Inspecionando ${luaFiles.length} script(s) Lua (.lua) para Cipher/Blum/RCE Droppers...`, 'muted');
+            for (let lIdx = 0; lIdx < luaFiles.length; lIdx++) {
+                const item = luaFiles[lIdx];
+                const { fullPath, resourceDir } = item;
+                const normFull = normalizePath(fullPath);
+                const relPath = normalizePath(path.relative(rootDir, fullPath));
+                const fileName = path.basename(fullPath);
+                const parts = normFull.split('/');
+                const lowerParts = parts.map(p => p.toLowerCase());
+
+                const resContext = resourceDir ? resourceContexts.get(resourceDir) : null;
+                const resName = resContext ? resContext.resourceName : (parts[0] || 'raiz');
+
+                if (lIdx % 20 === 0) {
+                    const pct = 75 + Math.floor(((lIdx + 1) / Math.max(1, luaFiles.length)) * 24);
+                    broadcastProgress(pct, `Analisando Lua (${lIdx + 1}/${luaFiles.length}): ${relPath}`);
+                    await sleepTick();
+                }
+
+                const inNodeModules = lowerParts.includes('node_modules');
+                const inProtectedFolder = Config.Detection.ProtectedFolders.some(pf => lowerParts.includes(pf.toLowerCase()));
+                if (inProtectedFolder || inNodeModules) {
+                    continue;
+                }
+
+                try {
+                    const stat = fs.statSync(fullPath);
+                    if (stat.size > 8 * 1024 * 1024) continue;
+
+                    const content = fs.readFileSync(fullPath, 'utf8');
+
+                    for (const pat of CompiledLuaPatterns) {
+                        if (pat.regex.test(content)) {
+                            const severity = pat.severity;
+                            const probability = severity === 'critical' ? '99.9% Backdoor Confirmado (Lua RCE)' : 'Analisar (Script Ofuscado / Shell)';
+                            const detail = `${pat.name}: ${pat.description} (${fileName})`;
+
+                            const threat = {
+                                id: threatCounter++,
+                                filePath: fullPath,
+                                relativePath: relPath,
+                                resourceName: resName,
+                                type: 'malicious_lua',
+                                severity,
+                                probability,
+                                detail,
+                                isHidden: false,
+                                hasXor: false,
+                                suspiciousFolder: null,
+                                isModResource: false,
+                                cleaned: false,
+                                quarantineId: null
+                            };
+
+                            if (severity === 'critical') {
+                                appendScanLog(`[CRÍTICO 99.9% LUA] ${relPath}`, 'danger');
+                                appendScanLog(`   -> Regra: ${detail}`, 'warn');
+                            } else {
+                                appendScanLog(`[AVISO LUA] ${relPath}`, 'warn');
+                                appendScanLog(`   -> Regra: ${detail}`, 'muted');
+                            }
+
+                            if ((mode === 'clean_safe' && severity === 'critical') || mode === 'clean_all') {
+                                if (cleanThreatItem(threat)) {
+                                    appendScanLog(`   -> DELETADO automaticamente (Backup salvo na Quarentena)`, 'accent');
+                                }
+                            }
+
+                            lastScanState.results.push(threat);
+                            broadcastToUi('piercer_killdoor:updateState', getPublicScanState());
+                            break;
+                        }
+                    }
+                } catch (e) {}
+            }
+        }
+
         recalculateStats();
         const s = lastScanState.stats;
         appendScanLog(`----------------------------------------------------------`, 'muted');
         if (s.totalThreats === 0) {
-            appendScanLog(`[CONCLUÍDO] Nenhuma ameaça encontrada! Servidor 100% limpo (${jsFiles.length} arquivos .js e ${manifestFiles.length} manifests verificados).`, 'accent');
+            appendScanLog(`[CONCLUÍDO] Nenhuma ameaça encontrada! Servidor 100% limpo (${jsFiles.length} arquivos .js, ${luaFiles.length} scripts .lua e ${manifestFiles.length} manifests verificados).`, 'accent');
         } else {
             appendScanLog(
                 `[CONCLUÍDO] ${s.totalThreats} detecção(ões): ${s.criticalThreats} crítica(s) (99.9% Backdoor) | ${s.warningThreats} para análise | ${s.cleanedThreats} neutralizada(s).`,
@@ -610,7 +731,7 @@ async function runScan(customRootDir = null, mode = 'report') {
     } finally {
         recalculateStats();
         lastScanState.scanning = false;
-        broadcastProgress(100, `Varredura concluída (${lastScanState.stats.totalFilesScanned} arquivos .js e ${lastScanState.stats.totalManifestsScanned} manifests verificados).`);
+        broadcastProgress(100, `Varredura concluída (${jsFiles.length} arquivos .js, ${luaFiles.length} scripts .lua e ${manifestFiles.length} manifests).`);
         broadcastToUi('piercer_killdoor:updateState', getPublicScanState());
     }
 
@@ -643,6 +764,10 @@ function getPublicScanState() {
         quarantine: loadQuarantineIndex()
     };
 }
+
+// ============================================================================
+// GERAÇÃO DE RELATÓRIO EM TEXTO (.TXT)
+// ============================================================================
 
 function generateAndSaveReport() {
     recalculateStats();
@@ -712,6 +837,10 @@ function generateAndSaveReport() {
     }
 }
 
+// ============================================================================
+// VERIFICAÇÃO DE PERMISSÃO
+// ============================================================================
+
 function checkPermission(source) {
     if (!source || source === 0) return true;
     try {
@@ -726,6 +855,10 @@ function checkPermission(source) {
         return IsPlayerAceAllowed(String(source), 'command');
     }
 }
+
+// ============================================================================
+// COMANDOS DE CONSOLE / TXADMIN E IN-GAME
+// ============================================================================
 
 RegisterCommand(Config.ConsoleCommand, (source, args) => {
     if (!checkPermission(source)) {
@@ -806,6 +939,10 @@ RegisterCommand(Config.ConsoleCommand, (source, args) => {
         }
     }
 }, false);
+
+// ============================================================================
+// EVENTOS DE REDE (COMUNICAÇÃO COM O PAINEL NUI IN-GAME)
+// ============================================================================
 
 onNet('piercer_killdoor:requestOpen', () => {
     const src = global.source;

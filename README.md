@@ -2,9 +2,9 @@
 
 # 🛡️ piercer_killdoor
 
-**Smart static backdoor scanner and remover for FiveM servers with quarantine vault and NUI interface.**
+**Smart static scanner and backdoor remover for FiveM servers featuring a quarantine rollback vault and tactile NUI.**
 
-Detects obfuscated code (XOR), JavaScript files disguised in asset mods, hidden files (`Hidden` attribute), and stealthy injections in `fxmanifest.lua` and `__resource.lua`. Works on **any base and framework**.
+Detects obfuscated code (XOR), JavaScript scripts disguised inside mods/assets, Windows Hidden attribute files, stealth injections inside `fxmanifest.lua` / `__resource.lua`, and Lua backdoors (remote RCE droppers with `assert(load(...))`, HTTP payload droppers, and Cipher/Blum C2 panels). Works with **any server framework**.
 
 ![FiveM](https://img.shields.io/badge/FiveM-resource-F40552?style=for-the-badge)
 ![Frameworks](https://img.shields.io/badge/vRP%20%C2%B7%20Creative%20%C2%B7%20ESX%20%C2%B7%20QBCore%20%C2%B7%20Qbox%20%C2%B7%20TNet%20%C2%B7%20standalone-2b2b2b?style=for-the-badge)
@@ -12,43 +12,44 @@ Detects obfuscated code (XOR), JavaScript files disguised in asset mods, hidden 
 ![UI](https://img.shields.io/badge/NUI-PT--BR%20%2F%20EN--US-black?style=for-the-badge)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/jZ3vTmdjU7)
 
-[![Ler em Português](https://img.shields.io/badge/Ler%20em%20Portugu%C3%AAs-5865F2?style=for-the-badge&logo=googletranslate&logoColor=white)](README.pt-BR.md)
+[![Ler em Português](https://img.shields.io/badge/Ler%20em%20Portugu%C3%AAs-009B3A?style=for-the-badge&logo=googletranslate&logoColor=white)](README.pt-BR.md)
 
 </div>
 
 ---
 
-## 🎯 What it's for
+## 🎯 Purpose & Features
 
-Many leaked scripts, malicious mods, or compromised server bases contain embedded backdoors that grant unauthorized admin access, run remote commands, or exfiltrate private server data.
+Leaked scripts, malicious mods, or compromised server bases frequently contain hidden backdoors designed to grant unauthorized administrative privileges, execute remote shell/Lua code, or steal sensitive server convars.
 
-Attackers typically hide these backdoors using known concealment techniques:
-- Stealthy injections in `fxmanifest.lua` or `__resource.lua` using spaced comments (`--[[...]]`) to push the malicious script declaration far to the right, hidden from text editors.
-- Scripts with dynamic XOR routines (`String.fromCharCode`, decoders, and `eval`).
-- `.js` files with the Windows `Hidden` attribute, dot-prefixed filenames (e.g., `.env.local.js`), or disguised names (`gitignore.js`, `gitattributes.js`, `.npmrc.js`, `.htaccess.js`).
-- `.js` scripts placed inside pure asset/mod folders (map stream assets, clothing, vehicles, weapons) that should never contain executable code.
+Attackers commonly hide backdoors using well-known techniques:
+- **Stealth Manifest Injections:** Comments `--[[...]]` padded with multiple spaces to hide malicious script inclusions outside editor viewports in `fxmanifest.lua` and `__resource.lua`.
+- **JavaScript XOR Payloads:** Dynamic decoders (`String.fromCharCode`, integer arrays, and `eval`).
+- **Hidden Files & Disguised Names:** `.js` files marked with the Windows Hidden attribute (`attrib +h`), dot-prefixed filenames (e.g., `.env.local.js`), or decoy names (`gitignore.js`, `gitattributes.js`, `.npmrc.js`, `.htaccess.js`).
+- **JS in Asset Mods:** `.js` files hidden inside streaming maps, clothing packs, and weapons that do not legitimately use JavaScript.
+- **Lua RCE Droppers & Cipher Panels:** Remote code execution via `assert(load(...))`, `PerformHttpRequest` payload droppers, communication with known C2 servers (Cipher/Blum panels), and viral replication routines via `SaveResourceFile`.
 
-**piercer_killdoor** scans your entire server resources tree for these patterns, separates critical threats from potential false positives, and provides instant rollback via a **Quarantine Vault**.
+**piercer_killdoor** scans your entire server resources directory for these signatures, isolates false positives from genuine backdoors, and enables rapid deletion with safe rollback through the **Quarantine Vault**.
 
-- 🧩 **100% Standalone & Multi-Framework**: Works out of the box with vRP, vRPex, Creative (all versions), TNet, QBCore, Qbox, ESX, and native ACE permissions.
-- ⚡ **Real-Time Streaming**: Line-by-line asynchronous scan without freezing server threads and 100% compliant with the FXServer Node.js sandbox (no `child_process` dependency).
-- 🛡️ **False-Positive Protection**: Does not blindly delete encrypted commercial scripts or legitimate NUI assets; separates 99.9% confirmed backdoors from manual review warnings.
-- 📦 **Quarantine Vault**: Every removed file or cleaned manifest line is backed up automatically with 1-click restore.
-- 🖥️ **Modern NUI & Terminal**: High-contrast, tactile interface with live telemetry, language switcher (PT-BR and EN-US), and full console/txAdmin CLI support.
+- 🧩 **100% Standalone & Multi-Framework**: Built-in support for vRP, vRPex, Creative (all versions), TNet, QBCore, Qbox, ESX, and native FiveM ACE permissions.
+- ⚡ **Real-Time Streaming**: Asynchronous line-by-line scanning without freezing the server, fully compliant with the FXServer Node.js sandbox (zero `child_process` dependency).
+- 🛡️ **False Positive Guard**: Never deletes encrypted paid scripts or legitimate NUI assets blindly; separates 99.9% confirmed backdoors from manual inspection warnings.
+- 📦 **Quarantine Vault**: Every deleted file or cleaned manifest line is automatically backed up and can be restored in 1 click.
+- 🖥️ **Sharp Monochrome NUI & Live Terminal**: Clean tactile design with fixed proportions (strictly no scrollbars in the operations menu), security confirmation prompts on all actions, and bilingual support (PT-BR and EN-US with flag toggles).
 
 ---
 
 ## 🚀 Installation
 
-1. Place the `piercer_killdoor` folder into your `resources/` directory:
+1. Copy the `piercer_killdoor` folder into your `resources/` directory:
    ```
    resources/[framezero-dev-scripts]/piercer_killdoor
    ```
-2. Add it to your `server.cfg`:
+2. Add to your `server.cfg`:
    ```cfg
    ensure piercer_killdoor
    ```
-3. When the server boots up, it will automatically run an initial safe diagnostic scan (Report Only) in the console.
+3. Upon server startup, the resource will run an initial safe diagnostic scan (Report Only) directly in the console.
 
 ---
 
@@ -58,69 +59,28 @@ All commands can be executed via the **Server Console / txAdmin Live Console** o
 
 | Command | Description |
 |---|---|
-| `/killdoor` | Opens the interactive in-game Graphical Interface (NUI). |
-| `killdoor report` | Runs a full scan in **Report Only** mode (does not modify or delete any file). |
-| `killdoor clean` | Runs **Safe Cleanup (99.9%)**, removing only confirmed backdoors with quarantine backup. |
-| `killdoor cleanall` | **Full Cleanup**: Removes all detections and XOR alerts with prior quarantine backup. |
-| `killdoor remove <id>` | Removes or cleans a specific threat by its numerical `#ID`. |
-| `killdoor quarantine` | Lists all files currently stored in the quarantine vault. |
-| `killdoor restore <id>` | Restores the specified file back to its original directory. |
-| `killdoor restore all` | Restores all quarantined files back to their original locations. |
-| `killdoor savereport` | Saves a detailed technical report as a `.txt` file inside `reports/`. |
+| `/killdoor` | Opens the Interactive NUI Dashboard in-game. |
+| `killdoor report` | Runs a console diagnostic listing all threats without modifying any files. |
+| `killdoor clean` | Runs Smart Cleanup (removes 99.9% confirmed backdoors with quarantine backup). |
+| `killdoor cleanall` | Full Cleanup (removes all critical and warning files with quarantine backup). |
+| `killdoor quarantine` | Lists all backups stored in the Quarantine Vault. |
+| `killdoor restore <id>` | Restores a specific quarantined file back to its original location. |
+| `killdoor restore all` | Restores all files currently in quarantine. |
 
 ---
 
 ## ⚙️ Configuration
 
-General settings, protected paths, regex patterns, and permissions are configured in `config.js`:
+The `config.js` file allows complete customization of the scanner:
 
-```javascript
-const KillDoorConfig = {
-    InGameCommand: 'killdoor',       // In-game command to open NUI
-    ConsoleCommand: 'killdoor',      // Server console/txAdmin command
-    AutoScanOnStart: true,           // Automatic diagnostic on server startup
-    EnableQuarantine: true,          // Automatic backup before any deletion
-    ScanLegacyResourceLua: true,     // Checks both fxmanifest.lua and legacy __resource.lua
-    // ...
-};
-```
-
-### Permissions
-
-Permission resolution is universal and handled automatically by `server/framework_auth.lua`:
-
-- **Native ACE**: `killdoor.admin`, `admin`, `command`
-- **vRP / vRPex / Creative / TNet**: Groups like `admin.permissao`, `owner.permissao`, `developer.permissao`, `Admin`, `Owner`, etc.
-- **QBCore / Qbox / ESX**: Groups `god`, `admin`, `superadmin`, `owner`, `dev`
-- **Direct Identifiers**: Add specific licenses or Discord IDs under `Config.Permissions.AdminIdentifiers`
+- `Permissions`: Admin groups for vRP (`admin.permissao`), QBCore (`admin`), ACE (`killdoor.admin`), or direct identifiers (`license:...`, `discord:...`).
+- `Detection.ProtectedFolders`: Directories where isolated XOR codes will not be touched (e.g., `artifacts`, `citizen`, `monitor`, `screenshot-basic`).
+- `Detection.SafeDotFiles`: Legitimate development dotfiles (`.eslintrc.js`, `.prettierrc.js`, etc.).
+- `Detection.SuspiciousFileNames`: Known decoy backdoor names (`.env.local.js`, `gitignore.js`, etc.).
+- `Detection.LuaPatterns`: Regex patterns for detecting Lua RCE droppers, Cipher, Blum, and infectors.
 
 ---
 
-## 🔍 Detection Rules & Classification
+## 📋 License & Support
 
-The scanner categorizes findings by confidence level to avoid breaking valid server scripts:
-
-### 🔴 Critical (99.9% Confirmed Backdoor)
-- **Hidden File Attribute + XOR**: Hidden `.js` files containing dynamic decoding routines.
-- **Manifest Injections**: Lines with whitespace-padded comments (`--[[ ... ]]       'script.js'`).
-- **Disguised Backdoor Names**: Known deceptive names (`gitignore.js`, `gitattributes.js`, `.env.local.js`, `.npmrc.js`, `.htaccess.js`).
-- **Scripts in Asset Mods**: `.js` files located inside map stream, clothing, or weapon resources lacking a `ui_page`.
-
-### 🟡 Warning / Review (Possible False Positive)
-- **XOR in Visible Files**: Valid obfuscated commercial scripts (e.g., protected NUI bundles).
-- **NPM Packages**: Configuration files inside `node_modules` (flagged only if disguised or matching direct backdoor signatures).
-
----
-
-## 📦 Quarantine System
-
-No file is permanently destroyed without a rollback option. When a threat is neutralized:
-1. An intact copy is stored in `piercer_killdoor/quarantine/` with a unique ID.
-2. The original file path and detection metadata are indexed.
-3. You can restore any file instantly from the NUI panel or via `killdoor restore <id>`.
-
----
-
-<div align="center">
-Built for security, stability, and full transparency for FiveM server owners and developers.
-</div>
+Engineered for maximum FiveM server security and integrity. Questions or suggestions? Join our Discord: https://discord.gg/jZ3vTmdjU7

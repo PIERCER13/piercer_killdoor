@@ -14,6 +14,9 @@ const KillDoorConfig = {
     // Escanear também __resource.lua antigos além de fxmanifest.lua
     ScanLegacyResourceLua: true,
 
+    // Escanear arquivos Lua (.lua) do servidor além de scripts JavaScript (.js)
+    ScanLuaFiles: true,
+
     // ========================================================================
     // PERMISSÕES E FRAMEWORKS (vRP, vRPex, Creative, TNet, QBCore, QBox, ESX)
     // ========================================================================
@@ -64,7 +67,10 @@ const KillDoorConfig = {
             'artifacts',
             'citizen',
             'system_resources',
-            'monitor' // txAdmin
+            'monitor', // txAdmin
+            'screenshot-basic',
+            'yarn',
+            'webpack'
         ],
 
         // Arquivos de configuração legítimos do ecossistema JS/Node que começam com ponto (.)
@@ -105,7 +111,7 @@ const KillDoorConfig = {
             'html/js'
         ],
 
-        // As 8 Expressões Regulares de XOR e Ofuscação
+        // As 8 Expressões Regulares de XOR e Ofuscação em JavaScript (SprintScanner original)
         XorPatterns: [
             String.raw`x=\(e,k=3\)=>\[\.\.\.e\]\.map\(c=>String\.fromCharCode\(c\.charCodeAt\(\).*\^.*k\)\)`,
             String.raw`x=s=>eval\(s\.replace\(/\\\\u\(\[0-9a-f\]\{4\}\)/g`,
@@ -117,8 +123,63 @@ const KillDoorConfig = {
             String.raw`eval\s*\(\s*\w+\s*\(\s*\w+\s*,\s*\d+\s*\)\s*\)`
         ],
 
-        // Regex de injeção no fxmanifest.lua / __resource.lua (comentário --[[...]] seguido de 5+ espaços e um arquivo .js)
-        ManifestInjectPattern: String.raw`--\[\[.*?\]\]\s{5,}['"](.*?\.(?:js|lua))['"]`
+        // Regex de injeção no fxmanifest.lua / __resource.lua (comentário --[[...]] seguido de 5+ espaços e um arquivo .js ou .lua)
+        ManifestInjectPattern: String.raw`--\[\[.*?\]\]\s{5,}['"](.*?\.(?:js|lua))['"]`,
+
+        // ====================================================================
+        // PADRÕES DE BACKDOORS E CIPHER EM LUA (fivem-backdoor-scanner & Livvux)
+        // ====================================================================
+        LuaPatterns: [
+            // 1. RCE Dropper: assert(load(...)) ou assert(loadstring(...))
+            {
+                name: 'Lua RCE Dropper (assert + load/loadstring)',
+                regex: String.raw`assert\s*\(\s*(?:load|loadstring)\s*\(`,
+                severity: 'critical',
+                description: 'Execução de código remoto via assert(load/loadstring)'
+            },
+            // 2. PerformHttpRequest baixando e executando código diretamente
+            {
+                name: 'PerformHttpRequest Payload Exec Sink',
+                regex: String.raw`PerformHttpRequest\s*\([^,]+,\s*(?:function\s*\([^)]*\))?[\s\S]{0,120}?(?:assert|load|loadstring)\s*\(`,
+                severity: 'critical',
+                description: 'Download HTTP com execução direta do corpo da resposta'
+            },
+            // 3. Cipher Panel / Blum Panel / Endpoints Maliciosos Conhecidos
+            {
+                name: 'Painel C2 Conhecido (Cipher / Blum / Webhook Dropper)',
+                regex: String.raw`(?:cipher-panel|blumpanel|kekhack|antibackdoor\.(?:cc|xyz|net)|api\.ipify\.org.*?webhook)`,
+                severity: 'critical',
+                description: 'Comunicação com servidores de comando e controle conhecidos (Cipher/Blum)'
+            },
+            // 4. Injeção Viral em Manifests via SaveResourceFile
+            {
+                name: 'Infector de Manifest (SaveResourceFile infector)',
+                regex: String.raw`SaveResourceFile\s*\([^,]+,\s*['"][^'"]*(?:fxmanifest|__resource)\.lua['"]`,
+                severity: 'critical',
+                description: 'Script tentando sobrescrever manifests de outras resources'
+            },
+            // 5. Sequência Longa de Bytes Hexadecimal (\x00\x00\x00...)
+            {
+                name: 'Ofuscação Hexadecimal Contínua',
+                regex: String.raw`(?:\\x[0-9a-fA-F]{2}){8,}`,
+                severity: 'warning',
+                description: 'Cadeia extensa de bytes hexadecimais ofuscados'
+            },
+            // 6. Construtor Ofuscado string.char com múltiplos códigos
+            {
+                name: 'Cadeia Longa de string.char ofuscada',
+                regex: String.raw`string\.char\s*\(\s*\d+\s*(?:,\s*\d+\s*){8,}`,
+                severity: 'warning',
+                description: 'Construção dinâmica de payload através de dezenas de números ASCII'
+            },
+            // 7. Chamada de Shell do Sistema Operacional (os.execute / io.popen)
+            {
+                name: 'Acesso a Shell do SO (os.execute / io.popen)',
+                regex: String.raw`\b(?:os\.execute|io\.popen)\s*\(`,
+                severity: 'warning',
+                description: 'Chamada direta ao terminal do sistema operacional via script Lua'
+            }
+        ]
     }
 };
 
