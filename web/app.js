@@ -8,13 +8,13 @@ const I18N = {
         engine_badge: 'ENGINE v1.0 • STANDALONE',
         subtitle: 'Scanner Estático de Backdoors XOR, Arquivos Ocultos, Lua RCE e Injeções em fxmanifest.lua',
         subtitle_scanned: (dir, time) => `Diretório Alvo: ${dir} • Última Varredura: ${time}`,
-        btn_save_txt: 'EXPORTAR .TXT',
-        btn_rescan: 'REESCANEAR',
-        tab_modes: 'CENTRAL DE OPERAÇÕES',
-        tab_critical: 'BACKDOORS 99.9%',
-        tab_warning: 'FALSOS POSITIVOS',
-        tab_quarantine: 'QUARENTENA',
-        tab_logs: 'REGRAS & TERMINAL',
+        btn_save_txt: 'Exportar .txt',
+        btn_rescan: 'Reescanear',
+        tab_modes: 'Central de operações',
+        tab_critical: 'Backdoors 99.9%',
+        tab_warning: 'Falsos positivos',
+        tab_quarantine: 'Quarentena',
+        tab_logs: 'Regras e terminal',
         precision_label: 'STATUS',
         tel_total: 'TOTAL DETECTADO',
         tel_crit: '99.9% BACKDOOR',
@@ -60,8 +60,8 @@ const I18N = {
         r4_t: '4. Lua RCE & Cipher Droppers',
         r4_d: 'Detecta assert(load(...)), PerformHttpRequest malicioso, servidores Cipher/Blum e cópias automáticas via SaveResourceFile.',
         modal_tag: 'CONFIRMAÇÃO DE SEGURANÇA',
-        modal_cancel: 'CANCELAR / IGNORAR',
-        modal_confirm: 'CONFIRMAR EXECUÇÃO',
+        modal_cancel: 'Cancelar / ignorar',
+        modal_confirm: 'Confirmar execução',
         modal_already_scanning_title: 'Varredura em Execução',
         modal_already_scanning_body: 'Uma varredura já está em andamento no servidor.\n\nAguarde o término da operação atual para iniciar uma nova.',
         badge_neutralized: 'NEUTRALIZADO',
@@ -95,13 +95,13 @@ const I18N = {
         engine_badge: 'ENGINE v1.0 • STANDALONE',
         subtitle: 'Static Scanner for XOR Backdoors, Windows Hidden Files, Lua RCE & fxmanifest.lua Injections',
         subtitle_scanned: (dir, time) => `Target Directory: ${dir} • Last Scan: ${time}`,
-        btn_save_txt: 'EXPORT .TXT',
-        btn_rescan: 'RESCAN',
-        tab_modes: 'OPERATIONS CENTER',
-        tab_critical: '99.9% BACKDOORS',
-        tab_warning: 'FALSE POSITIVES',
-        tab_quarantine: 'QUARANTINE VAULT',
-        tab_logs: 'RULES & TERMINAL',
+        btn_save_txt: 'Export .txt',
+        btn_rescan: 'Rescan',
+        tab_modes: 'Operations center',
+        tab_critical: '99.9% backdoors',
+        tab_warning: 'False positives',
+        tab_quarantine: 'Quarantine',
+        tab_logs: 'Rules & terminal',
         precision_label: 'STATUS',
         tel_total: 'TOTAL DETECTED',
         tel_crit: '99.9% BACKDOOR',
@@ -147,8 +147,8 @@ const I18N = {
         r4_t: '4. Lua RCE & Cipher Droppers',
         r4_d: 'Detects assert(load(...)), PerformHttpRequest payload droppers, Cipher/Blum C2 servers, and SaveResourceFile viral infectors.',
         modal_tag: 'SECURITY CONFIRMATION',
-        modal_cancel: 'CANCEL / DISMISS',
-        modal_confirm: 'CONFIRM EXECUTION',
+        modal_cancel: 'Cancel / dismiss',
+        modal_confirm: 'Confirm execution',
         modal_already_scanning_title: 'Scan Already in Progress',
         modal_already_scanning_body: 'A scan is currently running on the server.\n\nPlease wait for the current operation to finish before starting a new one.',
         badge_neutralized: 'NEUTRALIZED',
@@ -345,7 +345,7 @@ function renderThreatGrid(severityFilter, containerId) {
 
     for (const item of list) {
         const card = document.createElement('div');
-        card.className = `threat-card ${item.cleaned ? 'cleaned' : ''}`;
+        card.className = `threat-card ${item.severity === 'warning' ? 'warn' : ''} ${item.cleaned ? 'cleaned' : ''}`;
 
         const isCrit = item.severity === 'critical';
         const tagClass = item.cleaned ? 'tag-clean' : (isCrit ? 'tag-crit' : 'tag-warn');
@@ -360,9 +360,9 @@ function renderThreatGrid(severityFilter, containerId) {
         card.innerHTML = `
             <div class="card-top">
                 <span class="card-tag ${tagClass}">${tagText}</span>
-                <span style="font-size: 10px; font-weight: 800; color: #88889c;">#${item.id}</span>
+                <span class="threat-path">${escapeHtml(item.relativePath)}</span>
+                <span class="threat-size">#${item.id}</span>
             </div>
-            <div class="threat-path">${escapeHtml(item.relativePath)}</div>
             <div class="threat-reason">
                 <strong style="color: #ffffff;">${escapeHtml(item.resourceName)}:</strong> ${escapeHtml(item.detail)}
             </div>
@@ -389,26 +389,15 @@ function renderQuarantineGrid() {
         return;
     }
 
-    for (const item of list) {
-        const card = document.createElement('div');
-        card.className = 'threat-card';
-
-        card.innerHTML = `
-            <div class="card-top">
-                <span class="card-tag tag-clean">${escapeHtml(item.type)}</span>
-                <span style="font-size: 10px; font-weight: 800; color: #88889c;">${item.timestamp}</span>
-            </div>
-            <div class="threat-path">${escapeHtml(item.originalPath)}</div>
-            <div class="threat-reason">${escapeHtml(item.reason || '')}</div>
-            <div class="card-action-bar">
-                <span class="action-hint">ID: ${escapeHtml(item.id)}</span>
-                <button class="tactile-btn tactile-btn-primary" onclick="restoreQuarantine('${item.id}')">
-                    ${t('btn_restore')}
-                </button>
-            </div>
-        `;
-        container.appendChild(card);
-    }
+    const rows = list.map(item => `
+        <tr>
+            <td>#${escapeHtml(item.id)}</td>
+            <td><div class="q-path">${escapeHtml(item.originalPath)}</div></td>
+            <td><span class="card-tag tag-clean">${escapeHtml(item.type)}</span><div class="q-sub">${escapeHtml(item.reason || '')}</div></td>
+            <td>${escapeHtml(item.timestamp)}</td>
+            <td><button class="tactile-btn" onclick="restoreQuarantine('${item.id}')">${t('btn_restore')}</button></td>
+        </tr>`).join('');
+    container.innerHTML = `<table class="q-table"><thead><tr><th>ID</th><th>Caminho original</th><th>Motivo</th><th>Data</th><th>Ações</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function renderTerminalLogs() {

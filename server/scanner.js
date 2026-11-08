@@ -697,7 +697,7 @@ async function runScan(customRootDir = null, mode = 'report') {
     } finally {
         recalculateStats();
         lastScanState.scanning = false;
-        broadcastProgress(100, `Varredura concluída (${jsFiles.length} arquivos .js, ${luaFiles.length} scripts .lua e ${manifestFiles.length} manifests).`);
+        broadcastProgress(100, `Varredura concluída (${lastScanState.stats.totalFilesScanned || 0} arquivos analisados).`);
         broadcastToUi('piercer_killdoor:updateState', getPublicScanState());
     }
 
