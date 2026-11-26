@@ -10,7 +10,7 @@ Detecta códigos ofuscados (XOR), scripts JavaScript camuflados em mods/assets, 
 ![Frameworks](https://img.shields.io/badge/vRP%20%C2%B7%20Creative%20%C2%B7%20ESX%20%C2%B7%20QBCore%20%C2%B7%20Qbox%20%C2%B7%20TNet%20%C2%B7%20standalone-2b2b2b?style=for-the-badge)
 ![NodeJS](https://img.shields.io/badge/Node.js-100%25%20FS-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![UI](https://img.shields.io/badge/NUI-PT--BR%20%2F%20EN--US-black?style=for-the-badge)
-[![Discord](https://img.shields.io/badge/Discord-entrar-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/jZ3vTmdjU7)
+[![Discord](https://img.shields.io/badge/Discord-entrar-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/framezerodevelopment)
 
 [![Read in English](https://img.shields.io/badge/Read%20in%20English-5865F2?style=for-the-badge&logo=googletranslate&logoColor=white)](README.md)
 
@@ -88,4 +88,4 @@ O arquivo `config.js` permite personalizar totalmente o comportamento do scanner
 
 ## 📋 Licença e Suporte
 
-Desenvolvido para máxima segurança e integridade de servidores FiveM. Dúvidas ou sugestões? Junte-se ao nosso Discord: https://discord.gg/jZ3vTmdjU7
+Desenvolvido para máxima segurança e integridade de servidores FiveM. Dúvidas ou sugestões? Junte-se ao nosso Discord: https://discord.gg/framezerodevelopment
