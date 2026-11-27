@@ -240,6 +240,10 @@ function cleanThreatItem(threat) {
         const qId = backupToQuarantine(threat);
         if (qId) {
             threat.quarantineId = qId;
+        } else if (Config.EnableQuarantine) {
+            // sem cópia de segurança não há como desfazer: o arquivo fica como está
+            appendScanLog(`[MANTIDO] ${threat.relativePath}: o backup falhou, nada foi removido.`, 'danger');
+            return false;
         }
 
         if (threat.type === 'malicious_js') {
@@ -460,29 +464,28 @@ async function runScan(customRootDir = null, mode = 'report') {
             const inProtectedFolder = Config.Detection.ProtectedFolders.some(pf => lowerParts.includes(pf.toLowerCase()));
 
             const isKnownBackdoorName = Config.Detection.SuspiciousFileNames.some(
-                s => lowerFileName === s.toLowerCase() || lowerFileName.endsWith(s.toLowerCase())
+                s => lowerFileName === s.toLowerCase()
             );
 
             const isSafeDotFile = Config.Detection.SafeDotFiles.some(s => lowerFileName === s.toLowerCase());
             const startsWithDot = fileName.startsWith('.') && !isSafeDotFile;
 
-            const hasHiddenSegment = parts.some(seg => seg.startsWith('.') && seg !== '.' && seg !== '..' && !isSafeDotFile);
-            let isReadOnlyHidden = false;
-            try {
-                const st = fs.statSync(fullPath);
-                if ((st.mode & 0o222) === 0) isReadOnlyHidden = true;
-            } catch (e) {}
-            const isHiddenAttr = startsWithDot || hasHiddenSegment || isReadOnlyHidden;
+            // pastas acima de resources (onde o servidor está instalado) não são sinal de nada.
+            // Somente leitura também não: é comum em cópias, Git e arquivos protegidos.
+            const relLower = relPath.toLowerCase();
+            const relSegments = relPath.split('/');
+            const hasHiddenSegment = relSegments.some(seg => seg.startsWith('.') && seg !== '.' && seg !== '..' && !isSafeDotFile);
+            const isHiddenAttr = startsWithDot || hasHiddenSegment;
 
             let matchedSuspiciousFolder = null;
             for (const sub of Config.Detection.SuspiciousSubfolders) {
                 const subLower = sub.toLowerCase();
                 if (subLower.includes('/')) {
-                    if (lowerFull.includes('/' + subLower + '/')) {
+                    if (('/' + relLower).includes('/' + subLower + '/')) {
                         matchedSuspiciousFolder = sub;
                         break;
                     }
-                } else if (lowerParts.slice(0, -1).includes(subLower)) {
+                } else if (relLower.split('/').slice(0, -1).includes(subLower)) {
                     matchedSuspiciousFolder = sub;
                     break;
                 }
@@ -529,6 +532,9 @@ async function runScan(customRootDir = null, mode = 'report') {
             let probability = 'Analisar (Possível Falso Positivo)';
             let detail = '';
 
+            let reviewOnly = false;
+            const modJs = isModResource && !inNodeModules && !inProtectedFolder;
+
             if (isReferencedByManifestInject) {
                 severity = 'critical';
                 probability = '99.9% Backdoor Confirmado';
@@ -541,7 +547,7 @@ async function runScan(customRootDir = null, mode = 'report') {
                 severity = 'critical';
                 probability = '99.9% Backdoor Confirmado';
                 detail = `Nome camuflado de backdoor (${fileName})${hasXor ? ' + código XOR' : ''}`;
-            } else if (isModResource && !inNodeModules && !inProtectedFolder) {
+            } else if (modJs && (hasXor || isHiddenAttr)) {
                 severity = 'critical';
                 probability = '99.9% Backdoor Confirmado (JS em Mod)';
                 detail = `Arquivo JS dentro de Mod de Mapa/Roupa/Arma (${resName})${matchedSuspiciousFolder ? ` na pasta '${matchedSuspiciousFolder}'` : ''}`;
@@ -565,6 +571,10 @@ async function runScan(customRootDir = null, mode = 'report') {
                 severity = 'warning';
                 probability = 'Analisar (Arquivo Oculto sem XOR)';
                 detail = `Arquivo oculto (${fileName}) sem padrão XOR conhecido`;
+            } else if (modJs) {
+                reviewOnly = true;
+                probability = 'Analisar (JS em Mod, sem outro sinal)';
+                detail = `Arquivo JS em recurso com stream/ e sem ui_page (${resName}) — não é removido pela limpeza automática`;
             }
 
             const threat = {
@@ -580,6 +590,7 @@ async function runScan(customRootDir = null, mode = 'report') {
                 hasXor,
                 suspiciousFolder: matchedSuspiciousFolder,
                 isModResource,
+                reviewOnly,
                 cleaned: false,
                 quarantineId: null
             };
@@ -592,7 +603,7 @@ async function runScan(customRootDir = null, mode = 'report') {
                 appendScanLog(`   -> Motivo: ${detail}`, 'muted');
             }
 
-            if ((mode === 'clean_safe' && severity === 'critical') || mode === 'clean_all') {
+            if (!reviewOnly && ((mode === 'clean_safe' && severity === 'critical') || mode === 'clean_all')) {
                 if (cleanThreatItem(threat)) {
                     appendScanLog(`   -> DELETADO automaticamente (Backup salvo na Quarentena)`, 'accent');
                 }
@@ -929,8 +940,8 @@ onNet('piercer_killdoor:startScan', async (data) => {
     activeUiClients.add(src);
 
     const mode = (data && data.mode) ? data.mode : 'report';
-    const customDir = (data && data.customDir) ? data.customDir : null;
-    await runScan(customDir, mode);
+    // a pasta é sempre a de resources: um caminho vindo do client apagaria arquivos em qualquer lugar
+    await runScan(null, mode);
 });
 
 onNet('piercer_killdoor:cleanSingle', (threatId) => {
