@@ -207,16 +207,16 @@
             <div class="hud-viewport" id="view-logs">
                 <div class="rules-banner">
                     <div class="rule-item">
-                        <strong data-i18n="r1_t">1. Atributo Hidden + XOR (99.9%)</strong>
-                        <span data-i18n="r1_d">Backdoors reais ocultam o arquivo no Windows (attrib +h) e ofuscam o payload com XOR / String.fromCharCode.</span>
+                        <strong data-i18n="r1_t">1. Arquivo Oculto + XOR (99.9%)</strong>
+                        <span data-i18n="r1_d">Arquivos iniciados por ponto com código ofuscado por XOR / String.fromCharCode. O atributo Oculto do Windows não é verificado.</span>
                     </div>
                     <div class="rule-item">
                         <strong data-i18n="r2_t">2. Pastas &amp; Nomes Camuflados</strong>
                         <span data-i18n="r2_d">Detecta gitignore.js, .env.local.js, .npmrc.js em pastas helpers, middleware, cache, logs, fonts, data, src.</span>
                     </div>
                     <div class="rule-item">
-                        <strong data-i18n="r3_t">3. Mods com Script JS (99.9%)</strong>
-                        <span data-i18n="r3_d">Mapas, roupas e armas (stream/ sem ui_page) não utilizam .js — qualquer script JS ali é apontado como crítico.</span>
+                        <strong data-i18n="r3_t">3. JS em Mods (analisar)</strong>
+                        <span data-i18n="r3_d">Um .js em recurso com stream/ e sem ui_page vira alerta e não é removido sozinho. Com XOR ou arquivo oculto, é crítico.</span>
                     </div>
                     <div class="rule-item">
                         <strong data-i18n="r4_t">4. Lua RCE &amp; Cipher Droppers</strong>
